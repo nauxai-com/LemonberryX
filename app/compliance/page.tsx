@@ -58,7 +58,7 @@ export default function CompliancePage() {
   let checkIdx = 0;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col" style={{ minHeight: "100%" }}>
       <TopBar title="Compliance" subtitle="YT Inauthentic Content Prevention System 2026" />
       <div className="flex-1 overflow-auto p-8 grid grid-cols-1 xl:grid-cols-2 gap-6 content-start">
 

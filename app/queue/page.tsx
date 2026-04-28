@@ -39,8 +39,8 @@ export default function QueuePage() {
   const ideas       = items.filter(i => i.status === 'idea').length;
 
   return (
-    <div className="flex h-full">
-      <div className="flex flex-col flex-1 min-w-0 h-full">
+    <div className="flex h-full" style={{ margin: '-30px -40px', height: 'calc(100vh - 0px)' }}>
+      <div className="flex flex-col flex-1 min-w-0 h-full" style={{ padding: '30px 40px' }}>
         <TopBar title="Content Queue" subtitle={`${items.length} videos`} />
 
         {/* Filters + Search */}

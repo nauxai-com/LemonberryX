@@ -71,7 +71,7 @@ export default function ToolsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col" style={{ minHeight: "100%" }}>
       <TopBar title="Tools" subtitle="Production stack + n8n automation triggers" />
       <div className="flex-1 overflow-auto p-8 space-y-8">
 

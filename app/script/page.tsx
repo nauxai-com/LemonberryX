@@ -76,7 +76,7 @@ function ScriptPageInner() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col" style={{ minHeight: '100%' }}>
       <TopBar title="Script Engine" subtitle="Retention-engineered scripts for Grimm Archives" />
       <div className="flex flex-1 overflow-hidden">
         {/* Left */}

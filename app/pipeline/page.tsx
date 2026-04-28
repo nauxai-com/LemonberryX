@@ -46,7 +46,7 @@ export default function PipelinePage() {
   const pct = Math.round((completed / STAGES.length) * 100);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col" style={{ minHeight: '100%' }}>
       <TopBar title="Production Pipeline" subtitle="11-stage content workflow" />
 
       {/* Channel tabs */}
