@@ -3,9 +3,9 @@
 @import "../styles/dropline-font.css";
 
 :root {
-  --bg-base: #0F0A1E;
-  --bg-surface: #13102A;
-  --bg-card: rgba(255,255,255,0.06);
+  --bg-base: #150d2e;
+  --bg-surface: #1a1040;
+  --bg-card: rgba(255,255,255,0.08);
   --bg-card-hover: rgba(255,255,255,0.09);
   --text-primary: #FFFFFF;
   --text-secondary: rgba(255,255,255,0.60);
@@ -69,8 +69,8 @@ h1, h2, h3, h4, h5, h6, .gradient-heading, .page-title, .brand-text {
 .blob {
   position: fixed;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.20;
+  filter: blur(120px);
+  opacity: 0.55;
   animation: drift 20s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;

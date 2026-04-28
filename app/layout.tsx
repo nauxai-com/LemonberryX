@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <title>LemonberryX</title>
         <meta name="description" content="YouTube Channel Operations Dashboard" />
       </head>
-      <body className="h-full flex" style={{ background: '#0F0A1E' }}>
+      <body className="h-full flex" style={{ background: '#150d2e' }}>
         <GradientBlobs />
         <div
           className="sphere-3d"
