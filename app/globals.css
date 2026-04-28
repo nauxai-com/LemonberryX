@@ -10,18 +10,33 @@
 }
 
 :root {
-  --bg-base: #1e0f4e;
-  --bg-surface: #2a1560;
-  --bg-card: rgba(255,255,255,0.08);
-  --bg-card-hover: rgba(255,255,255,0.09);
+  /* === SPEC COLOR TOKENS === */
+  --purple: #5B3DF5;
+  --blue: #3A8DFF;
+  --cyan: #5CF2E3;
+  --pink: #FF7ACD;
+  --orange: #FFB86C;
+  --bg-dark: #0f0c29;
+  --bg-mid: #302b63;
+  --bg-light: #24243e;
+  --glass-white: rgba(255,255,255,0.12);
+  --glass-border: rgba(255,255,255,0.2);
+  --glow-primary: rgba(122,92,255,0.6);
+  --glow-secondary: rgba(92,242,227,0.5);
+
+  /* === APP TOKENS === */
+  --bg-base: #0f0c29;
+  --bg-surface: #302b63;
+  --bg-card: rgba(255,255,255,0.10);
+  --bg-card-hover: rgba(255,255,255,0.15);
   --text-primary: #FFFFFF;
   --text-secondary: rgba(255,255,255,0.60);
   --text-muted: rgba(255,255,255,0.35);
-  --border: rgba(255,255,255,0.10);
-  --border-hover: rgba(255,255,255,0.20);
-  --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #D946EF 50%, #06B6D4 100%);
-  --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #EF9F27 100%);
-  --gradient-heading: linear-gradient(135deg, #F59E0B 0%, #D946EF 35%, #7C3AED 65%, #06B6D4 100%);
+  --border: rgba(255,255,255,0.15);
+  --border-hover: rgba(255,255,255,0.25);
+  --gradient-primary: linear-gradient(135deg, #5B3DF5 0%, #FF7ACD 50%, #5CF2E3 100%);
+  --gradient-gold: linear-gradient(135deg, #FFB86C 0%, #FF7ACD 100%);
+  --gradient-heading: linear-gradient(135deg, #FFB86C 0%, #FF7ACD 35%, #5B3DF5 65%, #5CF2E3 100%);
 }
 
 * { box-sizing: border-box; }
@@ -30,7 +45,13 @@ html, body { height: 100%; }
 
 body {
   font-family: 'Dropline', sans-serif;
-  background-color: var(--bg-base);
+  background:
+    radial-gradient(circle at 30% 30%, #5B3DF5 0%, transparent 40%),
+    radial-gradient(circle at 70% 60%, #3A8DFF 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, #FF7ACD 0%, transparent 40%),
+    linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background-blend-mode: screen;
+  background-attachment: fixed;
   color: var(--text-primary);
   overflow-x: hidden;
 }
@@ -58,29 +79,80 @@ h1, h2, h3, h4, h5, h6, .gradient-heading, .page-title, .brand-text {
   background-clip: text;
 }
 
-/* Glassmorphism */
+/* Glassmorphism — spec exact */
 .glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  transition: background 0.2s, border-color 0.2s;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 0 10px rgba(255,255,255,0.10);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .glass-card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-hover);
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.30);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 0 15px rgba(255,255,255,0.12), 0 0 20px rgba(122,92,255,0.15);
 }
 
-/* Blobs */
+/* Blobs — spec exact */
 .blob {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.55;
-  animation: drift 20s ease-in-out infinite alternate;
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #5CF2E3, #3A8DFF, #5B3DF5);
+  border-radius: 60% 40% 70% 30% / 40% 60% 30% 70%;
+  filter: blur(40px);
+  opacity: 0.6;
+  animation: float 10s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Orb — spec exact */
+.orb {
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #FF7ACD 0%, #5B3DF5 40%, #3A8DFF 70%, transparent 100%);
+  box-shadow: 0 0 80px rgba(122,92,255,0.6), 0 0 120px rgba(92,242,227,0.4);
+  backdrop-filter: blur(20px);
+  position: relative;
+  animation: pulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+.orb::after {
+  content: "";
+  position: absolute;
+  width: 150%;
+  height: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  transform: rotate(45deg);
+  top: 40%;
+  left: -20%;
+  filter: blur(10px);
+}
+
+/* Dot grid — spec exact */
+.dots {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-image: radial-gradient(white 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-30px); }
+  100% { transform: translateY(0px); }
 }
 
 @keyframes drift {
