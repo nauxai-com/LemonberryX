@@ -3,53 +3,63 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import type { Channel } from '@/lib/supabase/types';
 import ChannelCard from '@/components/dashboard/ChannelCard';
-import TopBar from '@/components/layout/TopBar';
 
 export default function DashboardPage() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from('channels').select('*').order('created_at').then(({ data }) => {
+    supabase.from('channels').select('*').order('created_at').then(({ data }: any) => {
       setChannels(data || []);
       setLoading(false);
     });
   }, []);
 
-  return (
-    <div className="flex flex-col h-full">
-      <TopBar
-        title="Dashboard"
-        subtitle={`${channels.length} channels · 30 videos queued`}
-      />
-      <div className="p-8 flex-1">
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-5">
-            {[1,2,3,4].map(i => (
-              <div key={i} className="glass-card p-5 h-64 animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-            {channels.map((ch, i) => <ChannelCard key={ch.id} channel={ch} index={i} />)}
-          </div>
-        )}
+  const active        = channels.filter((c: Channel) => c.status === 'live').length;
+  const repositioning = channels.filter((c: Channel) => c.status === 'repositioning').length;
+  const paused        = channels.filter((c: Channel) => c.status === 'paused').length;
 
-        {/* Summary stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          {[
-            { label: 'Active Channels', value: channels.filter(c => c.status === 'live').length, color: '#10B981' },
-            { label: 'Repositioning',   value: channels.filter(c => c.status === 'repositioning').length, color: '#F59E0B' },
-            { label: 'Paused',          value: channels.filter(c => c.status === 'paused').length, color: 'rgba(255,255,255,0.4)' },
-            { label: 'Videos Queued',   value: 30, color: '#7C3AED' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="glass-card p-4 text-center">
-              <div className="text-3xl font-bold" style={{ color, fontFamily: 'Outfit' }}>{value}</div>
-              <div className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</div>
-            </div>
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  return (
+    <>
+      {/* HEADER */}
+      <div className="header">
+        <div className="title-block">
+          <h1>Dashboard</h1>
+          <p>{channels.length} channels · 30 videos queued</p>
+        </div>
+        <div className="date">{today}</div>
+      </div>
+
+      {/* STATS */}
+      <div className="stats">
+        <div className="stat-card">{active}<span>Active</span></div>
+        <div className="stat-card">{repositioning}<span>Processing</span></div>
+        <div className="stat-card">{paused}<span>Paused</span></div>
+        <div className="stat-card highlight">30<span>Queued</span></div>
+      </div>
+
+      {/* CHANNEL CARDS — when Supabase connected */}
+      {!loading && channels.length > 0 && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gap: 20,
+          marginTop: 32,
+        }}>
+          {channels.map((ch: Channel, i: number) => (
+            <ChannelCard key={ch.id} channel={ch} index={i} />
           ))}
         </div>
+      )}
+
+      {/* HERO — orb + dot grids */}
+      <div className="hero">
+        <div className="orb" />
+        <div className="dot-grid" />
+        <div className="dot-grid right" />
       </div>
-    </div>
+    </>
   );
 }

@@ -1,26 +1,26 @@
 'use client';
-import type { Metadata } from "next";
 import "./globals.css";
 import GradientBlobs from "@/components/layout/GradientBlobs";
 import Sidebar from "@/components/layout/Sidebar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" style={{ height: '100%' }}>
       <head>
         <title>LemonberryX</title>
         <meta name="description" content="YouTube Channel Operations Dashboard" />
       </head>
-      <body className="h-full flex" style={{ background: '#0f0c29' }}>
+      <body style={{ height: '100%', margin: 0, background: '#0f0c29', overflow: 'hidden' }}>
+        {/* Fixed background layer */}
         <GradientBlobs />
-        <div
-          className="sphere-3d"
-          style={{ top: '10%', right: '-100px' }}
-        />
-        <Sidebar />
-        <main className="flex-1 overflow-auto relative z-10">
-          {children}
-        </main>
+
+        {/* App layout */}
+        <div className="app">
+          <Sidebar />
+          <main className="main">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
