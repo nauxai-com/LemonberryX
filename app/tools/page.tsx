@@ -1,55 +1,33 @@
 'use client';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import TopBar from '@/components/layout/TopBar';
 
 const TOOLS = [
-  { name: 'Google Whisk',           use: 'AI image generation',                   color: '#F59E0B', url: 'https://labs.google/fx/tools/whisk' },
-  { name: 'Hunyuan Video',          use: 'Cinematic AI clips (web)',               color: '#D946EF', url: 'https://video.hunyuan.tencent.com' },
-  { name: 'NotebookLM',             use: 'Research + scripts',                     color: '#06B6D4', url: 'https://notebooklm.google.com' },
-  { name: 'AI Ask Studio',          use: 'Validated video ideas',                  color: '#10B981', url: 'https://www.youtube.com/feed/you' },
-  { name: 'ElevenLabs',             use: 'AI voiceover (Stability 0.40)',           color: '#7C3AED', url: 'https://elevenlabs.io' },
-  { name: 'CapCut',                 use: 'Final assembly + auto-captions',         color: '#EF4444', url: 'https://www.capcut.com' },
-  { name: 'Canva',                  use: '3 thumbnail AB variants',                color: '#F59E0B', url: 'https://www.canva.com' },
-  { name: 'YouTube Studio',         use: 'Upload + AI disclosure + AB test',       color: '#EF4444', url: 'https://studio.youtube.com' },
-  { name: 'auto-editor',            use: 'Silence removal (v29.3.1 ✓)',            color: '#10B981', url: 'https://github.com/WyattBlue/auto-editor' },
-  { name: 'short-video-maker',      use: 'Shorts factory — text → vertical video', color: '#06B6D4', url: 'http://localhost:3123' },
-  { name: 'AI-Shorts-Generator',    use: 'Viral clip detector — scores 0-100',     color: '#D946EF', url: 'https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator' },
-  { name: 'ViMax',                  use: 'Multi-agent documentary pipeline',       color: '#7C3AED', url: 'https://github.com/HKUDS/ViMax' },
-  { name: 'Crawl4AI',              use: 'LLM-friendly web crawler ✓',              color: '#10B981', url: 'https://github.com/unclecode/crawl4ai' },
-  { name: 'OpenMontage',            use: 'Agentic full video production',          color: '#F59E0B', url: 'https://github.com/calesthio/OpenMontage' },
+  { tier: 'T1 — Script & SEO',    tierColor: 'var(--lemon)',         name: 'AgriciDaniel/claude-youtube',         desc: 'Retention scripts, SEO, hooks, thumbnails — 14 sub-skills',          installed: true  },
+  { tier: 'T1 — Script & SEO',    tierColor: 'var(--lemon)',         name: 'alirezarezvani/claude-skills',         desc: '232+ Claude Code skills — 43 marketing skills',                       installed: false },
+  { tier: 'T2 — Automation',      tierColor: 'var(--mint)',          name: 'gyoridavid/short-video-maker ⭐',      desc: 'Shorts factory — Kokoro TTS + Pexels + Whisper captions + music',     installed: false },
+  { tier: 'T2 — Automation',      tierColor: 'var(--mint)',          name: 'SamurAIGPT/AI-Shorts-Generator ⭐',    desc: 'Auto-detects viral moments — virality scored 0–100',                  installed: false },
+  { tier: 'T2 — Automation',      tierColor: 'var(--mint)',          name: 'calesthio/OpenMontage',               desc: 'Agentic full production — plain prompt → full video assembly',         installed: false },
+  { tier: 'T2 — Automation',      tierColor: 'var(--mint)',          name: 'HKUDS/ViMax',                         desc: 'Multi-agent documentary — Director + Screenwriter + Producer',         installed: false },
+  { tier: 'T3 — Research',        tierColor: 'var(--violet-light)',  name: 'unclecode/crawl4ai',                  desc: 'LLM-friendly web crawler — outputs clean Markdown',                   installed: true  },
+  { tier: 'T3 — Research',        tierColor: 'var(--violet-light)',  name: 'D4Vinci/Scrapling',                   desc: 'Adaptive scraper — bypasses Cloudflare, stealth browsing',             installed: false },
+  { tier: 'T3 — Research',        tierColor: 'var(--violet-light)',  name: 'teng-lin/notebooklm-py',              desc: 'Pull scripts + ideas from NotebookLM programmatically',               installed: true  },
+  { tier: 'T4 — Video Gen (GPU)', tierColor: 'var(--berry)',         name: 'lllyasviel/FramePack',                desc: 'Long-form coherent AI video — constant memory, 6GB VRAM',             installed: false },
+  { tier: 'T4 — Video Gen (GPU)', tierColor: 'var(--berry)',         name: 'Tencent-Hunyuan/HunyuanVideo-1.5',    desc: '8.3B params — 720p in 75s on RTX 4090',                               installed: false },
+  { tier: 'T4 — Video Gen (GPU)', tierColor: 'var(--berry)',         name: 'Lightricks/LTX-Video',                desc: 'Speed-first — 10s/clip, 4K capable, ComfyUI native',                  installed: false },
+  { tier: 'T5 — Editing',         tierColor: '#FF9D4D',              name: 'WyattBlue/auto-editor v29.3.1',       desc: 'Automated silence removal — fully automated Stage 7',                 installed: true  },
+  { tier: 'T5 — Editing',         tierColor: '#FF9D4D',              name: 'opencut-app/OpenCut',                 desc: 'Open-source CapCut alternative — no watermarks',                      installed: false },
+  { tier: 'T6 — Infrastructure',  tierColor: '#4DC8FF',              name: 'n8n-io/n8n (Oracle)',                 desc: 'Workflow automation — connects all tools, schedules tasks',            installed: false },
+  { tier: 'T6 — Infrastructure',  tierColor: '#4DC8FF',              name: 'OpenRouter',                          desc: 'Route AI calls to 300+ models — free tier auto-routing',              installed: false },
+  { tier: 'Misc',                 tierColor: 'var(--lemon)',         name: 'yt-dlp v2026.3.17',                   desc: 'YouTube downloader for AI-Shorts-Generator processing',                installed: true  },
+  { tier: 'Misc',                 tierColor: 'var(--lemon)',         name: 'ElevenLabs',                          desc: 'AI voiceover — Stab:0.40 Sim:0.75 Style:0.65 Speaker Boost ON',      installed: false },
 ];
 
 const AUTOMATIONS = [
-  { label: '🔍 Run Daily Research',  action: 'research',   desc: 'Crawl4AI scrapes Grimm Archives topics' },
-  { label: '🎬 Generate Short',      action: 'short',      desc: 'Triggers short-video-maker Docker' },
-  { label: '✂️ Detect Viral Clips',  action: 'clips',      desc: 'AI-Shorts-Generator on latest upload' },
-  { label: '🤖 Full ViMax Run',      action: 'vimax',      desc: 'Triggers full ViMax pipeline' },
-];
-
-const SCHEDULE = [
-  { day: 'Monday',    task: 'Research — Crawl4AI auto-scrape + NotebookLM pull', time: '20 min' },
-  { day: 'Tuesday',   task: 'Script + 3 AB title variants',                        time: '45 min' },
-  { day: 'Wednesday', task: 'Whisk images + Hunyuan clips batch',                  time: '45 min' },
-  { day: 'Thursday',  task: 'Voiceover + title alignment check',                   time: '25 min' },
-  { day: 'Saturday',  task: 'auto-editor → CapCut → thumbnails → upload + Shorts', time: '90 min' },
-];
-
-const REPOS = [
-  { name: 'claude-youtube',              url: 'https://github.com/AgriciDaniel/claude-youtube' },
-  { name: 'short-video-maker',           url: 'https://github.com/gyoridavid/short-video-maker' },
-  { name: 'AI-Youtube-Shorts-Generator', url: 'https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator' },
-  { name: 'ViMax',                       url: 'https://github.com/HKUDS/ViMax' },
-  { name: 'FramePack',                   url: 'https://github.com/lllyasviel/FramePack' },
-  { name: 'HunyuanVideo',               url: 'https://github.com/Tencent-Hunyuan/HunyuanVideo' },
-  { name: 'LTX-Video',                   url: 'https://github.com/Lightricks/LTX-Video' },
-  { name: 'auto-editor',                 url: 'https://github.com/WyattBlue/auto-editor' },
-  { name: 'crawl4ai',                    url: 'https://github.com/unclecode/crawl4ai' },
-  { name: 'Scrapling',                   url: 'https://github.com/D4Vinci/Scrapling' },
-  { name: 'viral-ai-vids',              url: 'https://github.com/kaymen99/viral-ai-vids' },
-  { name: 'opencut',                     url: 'https://github.com/opencut-app/opencut' },
-  { name: 'OpenMontage',                 url: 'https://github.com/calesthio/OpenMontage' },
-  { name: 'n8n',                         url: 'https://github.com/n8n-io/n8n' },
+  { label: '🔍 Run Daily Research', action: 'research', desc: 'Crawl4AI scrapes Grimm Archives topics' },
+  { label: '🎬 Generate Short',     action: 'short',    desc: 'Triggers short-video-maker Docker' },
+  { label: '✂️ Detect Viral Clips', action: 'clips',    desc: 'AI-Shorts-Generator on latest upload' },
+  { label: '🤖 Full ViMax Run',     action: 'vimax',    desc: 'Triggers full ViMax pipeline' },
 ];
 
 export default function ToolsPage() {
@@ -59,7 +37,7 @@ export default function ToolsPage() {
   const trigger = async (action: string) => {
     setLoading(action);
     try {
-      const res = await fetch('/api/trigger', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
+      const res  = await fetch('/api/trigger', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
       const data = await res.json();
       setToast({ msg: data.message || 'Triggered successfully', type: 'success' });
     } catch {
@@ -71,94 +49,74 @@ export default function ToolsPage() {
   };
 
   return (
-    <div className="flex flex-col" style={{ minHeight: "100%" }}>
-      <TopBar title="Tools" subtitle="Production stack + n8n automation triggers" />
-      <div className="flex-1 overflow-auto p-8 space-y-8">
-
-        {/* Tool Grid */}
-        <div>
-          <h2 className="text-lg mb-4">Production Stack</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            {TOOLS.map(t => (
-              <a
-                key={t.name}
-                href={t.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glass-card p-4 flex flex-col gap-2 cursor-pointer group transition-all"
-                style={{ textDecoration: 'none' }}
-              >
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: t.color }} />
-                <div className="font-semibold text-sm" style={{ color: '#fff', fontFamily: 'Outfit' }}>{t.name}</div>
-                <div className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{t.use}</div>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* n8n Triggers */}
-        <div className="glass-card p-6">
-          <h2 className="text-lg mb-4">Automation Triggers</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {AUTOMATIONS.map(a => (
-              <button
-                key={a.action}
-                onClick={() => trigger(a.action)}
-                disabled={!!loading}
-                className="flex items-center gap-4 p-4 rounded-xl text-left transition-all"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', opacity: loading && loading !== a.action ? 0.5 : 1 }}
-              >
-                <div className="text-2xl">{a.label.split(' ')[0]}</div>
-                <div>
-                  <div className="text-sm font-semibold" style={{ color: '#fff' }}>{a.label.slice(2).trim()}</div>
-                  <div className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{a.desc}</div>
-                </div>
-                {loading === a.action && <div className="ml-auto w-4 h-4 rounded-full border-2 border-purple-400 border-t-transparent animate-spin" />}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Weekly Schedule + Repos */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="glass-card p-5">
-            <h2 className="text-lg mb-4">Weekly Schedule</h2>
-            <table className="w-full">
-              <thead>
-                <tr>
-                  {['Day', 'Task', 'Time'].map(h => <th key={h} className="text-left text-xs pb-2" style={{ color: 'rgba(255,255,255,0.4)' }}>{h}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {SCHEDULE.map(row => (
-                  <tr key={row.day} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td className="py-2.5 pr-4 text-sm font-semibold" style={{ color: '#D946EF', minWidth: 96 }}>{row.day}</td>
-                    <td className="py-2.5 pr-4 text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>{row.task}</td>
-                    <td className="py-2.5 text-xs" style={{ color: 'rgba(255,255,255,0.4)', whiteSpace: 'nowrap' }}>{row.time}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="glass-card p-5">
-            <h2 className="text-lg mb-4">Repo Quick Links</h2>
-            <div className="grid grid-cols-2 gap-1.5">
-              {REPOS.map(r => (
-                <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer"
-                  className="text-xs px-3 py-2 rounded-lg flex items-center gap-2 transition-all"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.65)', textDecoration: 'none' }}>
-                  <span>⚡</span>{r.name}
-                </a>
-              ))}
+    <div className="fade-in">
+      {/* Tool Grid */}
+      <p className="section-title">Full Tool Stack — All Tiers</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
+        {TOOLS.map((t, i) => (
+          <div key={i} className="tool-card">
+            <div style={{ fontFamily: 'Dropline, sans-serif', fontSize: 9, color: t.tierColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+              {t.tier}
             </div>
+            <div style={{
+              fontFamily: 'ChargerExtrabold, Outfit, sans-serif', fontWeight: 700,
+              fontSize: 12, textTransform: 'uppercase', color: 'var(--text)',
+              WebkitTextFillColor: 'var(--text)', background: 'none', marginBottom: 4,
+            }}>
+              {t.name}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.45, fontFamily: 'Dropline, sans-serif' }}>
+              {t.desc}
+            </div>
+            {t.installed && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 8,
+                fontFamily: 'Dropline, sans-serif', fontSize: 9, color: 'var(--mint)',
+                background: 'var(--mint-dim)', padding: '2px 7px', borderRadius: 4,
+              }}>
+                ✓ Installed
+              </div>
+            )}
           </div>
+        ))}
+      </div>
+
+      {/* Automation triggers */}
+      <div className="glass-card" style={{ padding: 24, marginBottom: 32 }}>
+        <h2 style={{ fontSize: 14, marginBottom: 16 }}>Automation Triggers</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {AUTOMATIONS.map(a => (
+            <button
+              key={a.action}
+              onClick={() => trigger(a.action)}
+              disabled={!!loading}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                padding: '14px 16px', borderRadius: 12, textAlign: 'left',
+                background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading && loading !== a.action ? 0.5 : 1,
+                transition: 'border-color 0.2s',
+              }}
+            >
+              <span style={{ fontSize: 22 }}>{a.label.split(' ')[0]}</span>
+              <div>
+                <div style={{ fontFamily: 'ChargerExtrabold, Outfit, sans-serif', fontWeight: 700, fontSize: 11, textTransform: 'uppercase', color: 'var(--text)', WebkitTextFillColor: 'var(--text)', background: 'none' }}>
+                  {a.label.slice(2).trim()}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'Dropline, sans-serif', marginTop: 2 }}>
+                  {a.desc}
+                </div>
+              </div>
+              {loading === a.action && (
+                <div style={{ marginLeft: 'auto', width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--violet)', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>{toast.msg}</div>
-      )}
+      {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
     </div>
   );
 }

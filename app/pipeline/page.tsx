@@ -2,134 +2,201 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import type { Channel } from '@/lib/supabase/types';
-import TopBar from '@/components/layout/TopBar';
 
 const STAGES = [
-  { n: 0,   label: 'Compliance Brief Check',     desc: 'Before scripting — confirm angle is original + unique', tool: 'YT Compliance Shield' },
-  { n: 1,   label: 'Research (3+ sources)',        desc: 'Crawl4AI + NotebookLM-py + AI Ask Studio',             tool: 'Crawl4AI · NotebookLM' },
-  { n: 2,   label: 'Script + Creator Take',        desc: 'claude-youtube framework + SSML cues + unique angle',  tool: 'claude-youtube' },
-  { n: 3,   label: 'Title Alignment Check',        desc: 'Verify script matches metadata exactly',               tool: 'Claude' },
-  { n: 4,   label: 'AB Test 3 Variants',           desc: 'Curiosity / Fear / Result triggers',                   tool: 'Script Engine' },
-  { n: 5,   label: 'Visuals (60%+ motion)',        desc: 'Whisk images + Hunyuan clips — min 4 motion clips',    tool: 'Whisk · Hunyuan' },
-  { n: 6,   label: 'Voiceover (with direction)',   desc: 'ElevenLabs stability <0.45 + tonal variation cues',    tool: 'ElevenLabs' },
-  { n: 7,   label: 'Auto-Edit + Assembly',         desc: 'auto-editor silence removal + CapCut',                 tool: 'auto-editor · CapCut' },
-  { n: 8,   label: 'Thumbnail (3 variants)',        desc: 'Canva — rotate style every 4th video',                 tool: 'Canva' },
-  { n: 8.5, label: '🛡️ Compliance Scorecard',     desc: 'Must score 7/10+ or fix and re-check',                 tool: 'Compliance page' },
-  { n: 9,   label: 'Upload',                       desc: 'AI disclosure ON — YouTube Studio — schedule',         tool: 'YouTube Studio' },
-  { n: 10,  label: 'Shorts Factory',               desc: 'short-video-maker + AI-Shorts-Generator — 3 Shorts',   tool: 'short-video-maker' },
+  { n: 'S0',  label: 'Compliance Brief Check',        tool: 'YT Compliance Shield — confirm angle original',         day: 'Mon' },
+  { n: 'S1',  label: 'Research & Ideation',            tool: 'Crawl4AI + NotebookLM-py + AI Ask Studio',             day: 'Mon' },
+  { n: 'S2',  label: 'Script (Retention-Engineered)',  tool: 'AgriciDaniel/claude-youtube + 3 AB variants',          day: 'Tue' },
+  { n: 'S3',  label: 'Title Alignment Check',          tool: 'Claude — verify script matches metadata',              day: 'Tue' },
+  { n: 'S4',  label: 'AB Test 3 Variants',             tool: 'Curiosity / Fear / Result triggers',                   day: 'Tue' },
+  { n: 'S5',  label: 'Visuals',                        tool: 'Whisk images + Hunyuan clips (min 60% motion)',        day: 'Wed' },
+  { n: 'S6',  label: 'Voiceover',                      tool: 'ElevenLabs (Stab:0.40, Style:0.65) / Kokoro TTS',     day: 'Thu' },
+  { n: 'S7',  label: 'Auto-Edit + Assembly',           tool: 'auto-editor silence removal + CapCut / OpenCut',       day: 'Sat' },
+  { n: 'S8',  label: 'Thumbnail (3 variants)',         tool: 'Canva — Curiosity / Fear / Result',                    day: 'Sat' },
+  { n: 'S8.5',label: 'Compliance Scorecard',           tool: 'Must score 7/10+ before upload',                       day: 'Sat', highlight: true },
+  { n: 'S9',  label: 'Upload + Shorts Factory',        tool: 'YouTube Studio + short-video-maker · AI disclosure ON', day: 'Sat', lemon: true },
 ];
+
+const SCHEDULE = [
+  { day: 'Monday',    task: 'Research — Crawl4AI auto-scrape + NotebookLM pull',                             time: '20 min' },
+  { day: 'Tuesday',   task: 'Script (retention framework) + 3 AB title variants',                            time: '45 min' },
+  { day: 'Wednesday', task: 'Whisk images + Hunyuan clips batch',                                            time: '45 min' },
+  { day: 'Thursday',  task: 'Voiceover + title alignment check',                                             time: '25 min' },
+  { day: 'Saturday',  task: 'auto-editor → CapCut assembly → 3 thumbnails → upload + Shorts',               time: '90 min' },
+];
+
+function PipelineSelect({ saved, onChange }: { saved: string; onChange: (v: string) => void }) {
+  return (
+    <select
+      value={saved}
+      onChange={e => onChange(e.target.value)}
+      style={{
+        background: 'transparent', border: '1px solid var(--border)',
+        borderRadius: 6, color: 'var(--text)',
+        fontFamily: 'Dropline, sans-serif', fontSize: 10,
+        padding: '4px 8px', cursor: 'pointer', outline: 'none', width: 80,
+      }}
+    >
+      <option style={{ background: 'var(--panel)' }}>Pending</option>
+      <option style={{ background: 'var(--panel)' }}>Done</option>
+      <option style={{ background: 'var(--panel)' }}>Skip</option>
+    </select>
+  );
+}
 
 export default function PipelinePage() {
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [selected, setSelected] = useState<Channel | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [pipeState, setPipeState] = useState<string[]>(Array(STAGES.length).fill('Pending'));
 
   useEffect(() => {
-    supabase.from('channels').select('*').then(({ data }) => {
-      setChannels(data || []);
-      setSelected(data?.[0] || null);
-    });
+    supabase.from('channels').select('*').then(({ data }) => setChannels(data || []));
+    try {
+      const saved = localStorage.getItem('lbx:pipeline');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setPipeState(parsed);
+      }
+    } catch {}
   }, []);
 
-  const setStage = async (n: number) => {
-    if (!selected) return;
-    setSaving(true);
-    const stageInt = Math.floor(n);
-    await supabase.from('channels').update({ pipeline_stage: stageInt }).eq('id', selected.id);
-    setSelected(p => p ? { ...p, pipeline_stage: stageInt } : p);
-    setChannels(prev => prev.map(c => c.id === selected.id ? { ...c, pipeline_stage: stageInt } : c));
-    setSaving(false);
+  const updateStage = (i: number, val: string) => {
+    const next = [...pipeState];
+    next[i] = val;
+    setPipeState(next);
+    localStorage.setItem('lbx:pipeline', JSON.stringify(next));
   };
 
-  const current = selected?.pipeline_stage ?? 0;
-  const completed = STAGES.filter(s => Math.floor(s.n) <= current).length;
-  const pct = Math.round((completed / STAGES.length) * 100);
+  const done = pipeState.filter(s => s === 'Done').length;
+  const pct  = Math.round((done / STAGES.length) * 100);
 
   return (
-    <div className="flex flex-col" style={{ minHeight: '100%' }}>
-      <TopBar title="Production Pipeline" subtitle="11-stage content workflow" />
-
-      {/* Channel tabs */}
-      <div className="px-8 py-3 flex gap-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {channels.map(c => (
-          <button
-            key={c.id}
-            onClick={() => setSelected(c)}
-            className="px-4 py-1.5 rounded-full text-sm transition-all"
-            style={{
-              background: selected?.id === c.id ? 'rgba(124,58,237,0.35)' : 'rgba(255,255,255,0.06)',
-              border: selected?.id === c.id ? '1px solid rgba(124,58,237,0.5)' : '1px solid rgba(255,255,255,0.1)',
-              color: selected?.id === c.id ? '#fff' : 'rgba(255,255,255,0.55)',
-            }}
-          >
-            {c.name}
-          </button>
-        ))}
-      </div>
-
-      {/* Stats */}
-      <div className="px-8 py-4 flex items-center gap-6 flex-wrap" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        {[
-          { label: 'Progress', value: `${pct}%` },
-          { label: 'Est. time/video', value: '~90 min' },
-          { label: 'Weekly total', value: '3.5 hrs' },
-          { label: 'Stages left', value: `${STAGES.length - completed}` },
-        ].map(({ label, value }) => (
-          <div key={label} className="glass-card px-4 py-2 text-center" style={{ minWidth: 100 }}>
-            <div className="text-sm font-bold" style={{ color: '#D946EF', fontFamily: 'Outfit' }}>{value}</div>
-            <div className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</div>
-          </div>
-        ))}
-        {/* Progress bar */}
-        <div className="flex-1 min-w-32">
-          <div className="rpm-bar" style={{ height: 6 }}>
-            <div className="rpm-fill" style={{ width: `${pct}%` }} />
-          </div>
+    <div className="fade-in">
+      {/* Top info bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <p className="section-title" style={{ margin: 0 }}>Universal Production Pipeline — {STAGES.length} Stages</p>
+        <div style={{ fontFamily: 'Dropline, sans-serif', fontSize: 11, color: 'var(--text-muted)' }}>
+          Target:{' '}
+          <span style={{ color: 'var(--lemon)' }}>~90 min/video</span>
+          {' · '}
+          <span style={{ color: 'var(--mint)' }}>3.5–4 hrs/wk</span>
+          {' · '}
+          <span style={{ color: 'var(--violet-light)' }}>{done}/{STAGES.length} done ({pct}%)</span>
         </div>
       </div>
 
-      {/* Stages */}
-      <div className="flex-1 overflow-auto px-8 py-6">
-        <div className="space-y-2 max-w-2xl">
-          {STAGES.map((stage, i) => {
-            const isDone    = Math.floor(stage.n) < current;
-            const isCurrent = Math.floor(stage.n) === current;
-            const isPending = Math.floor(stage.n) > current;
-            return (
-              <button
-                key={i}
-                onClick={() => setStage(stage.n)}
-                disabled={saving}
-                className="w-full flex items-start gap-4 px-4 py-3.5 rounded-xl text-left transition-all"
-                style={{
-                  background: isCurrent ? 'rgba(124,58,237,0.12)' : 'rgba(255,255,255,0.03)',
-                  border: isCurrent ? '1px solid rgba(124,58,237,0.35)' : '1px solid rgba(255,255,255,0.06)',
-                  boxShadow: isCurrent ? '0 0 16px rgba(124,58,237,0.15)' : 'none',
-                }}
-              >
-                {/* Dot */}
-                <div
-                  className={`stage-dot mt-1 shrink-0 ${isCurrent ? 'completing' : ''}`}
-                  style={{
-                    background: isDone ? '#10B981' : isCurrent ? '#D946EF' : 'rgba(255,255,255,0.2)',
-                    boxShadow: isCurrent ? '0 0 8px rgba(217,70,239,0.8)' : 'none',
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold" style={{ color: isDone ? '#10B981' : isCurrent ? '#fff' : 'rgba(255,255,255,0.5)' }}>
-                      Stage {stage.n} — {stage.label}
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)' }}>
-                      {stage.tool}
-                    </span>
-                  </div>
-                  <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{stage.desc}</div>
-                </div>
-              </button>
-            );
-          })}
+      {/* Progress bar */}
+      <div className="rpm-bar" style={{ height: 5, marginBottom: 20 }}>
+        <div className="rpm-fill" style={{ width: `${pct}%` }} />
+      </div>
+
+      {/* Pipeline rows */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
+        {/* Header row */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '48px 200px 1fr 80px 100px',
+          padding: '0 0 6px', fontFamily: 'Dropline, sans-serif',
+          fontSize: 10, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '1px',
+        }}>
+          <div style={{ paddingLeft: 14 }}>#</div>
+          <div style={{ paddingLeft: 16 }}>Stage</div>
+          <div style={{ paddingLeft: 16 }}>Tools</div>
+          <div style={{ paddingLeft: 16, textAlign: 'center' }}>Day</div>
+          <div style={{ paddingLeft: 16, textAlign: 'center' }}>Status</div>
         </div>
+
+        {STAGES.map((stage, i) => (
+          <div key={i} className="pipeline-row">
+            {/* Number */}
+            <div style={{
+              height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: stage.highlight ? 'rgba(255,59,140,0.1)' : stage.lemon ? 'rgba(232,244,0,0.08)' : 'rgba(112,72,248,0.10)',
+              borderRight: '1px solid var(--border)',
+              fontFamily: 'Dropline, sans-serif', fontSize: 11, fontWeight: 700,
+              color: stage.highlight ? 'var(--berry)' : stage.lemon ? 'var(--lemon)' : 'var(--violet-light)',
+              letterSpacing: '0.05em',
+            }}>
+              {stage.n}
+            </div>
+
+            {/* Stage name */}
+            <div style={{
+              padding: '0 16px',
+              fontFamily: 'ChargerExtrabold, Outfit, sans-serif',
+              fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.04em',
+              color: stage.highlight ? 'var(--berry)' : stage.lemon ? 'var(--lemon)' : 'var(--text)',
+              WebkitTextFillColor: stage.highlight ? 'var(--berry)' : stage.lemon ? 'var(--lemon)' : 'var(--text)',
+              background: 'none',
+            }}>
+              {stage.label}
+            </div>
+
+            {/* Tool */}
+            <div style={{
+              padding: '0 16px', fontSize: 12, color: 'var(--text-muted)',
+              borderLeft: '1px solid var(--border)', fontFamily: 'Dropline, sans-serif',
+            }}>
+              {stage.tool}
+            </div>
+
+            {/* Day */}
+            <div style={{
+              padding: '0 16px', fontFamily: 'Dropline, sans-serif', fontSize: 11,
+              color: stage.highlight ? 'var(--berry)' : stage.lemon ? 'var(--lemon)' : 'var(--lemon)',
+              borderLeft: '1px solid var(--border)', textAlign: 'center', letterSpacing: '0.05em',
+            }}>
+              {stage.day}
+            </div>
+
+            {/* Status */}
+            <div style={{
+              padding: '0 16px', borderLeft: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', height: 52,
+            }}>
+              <PipelineSelect saved={pipeState[i]} onChange={v => updateStage(i, v)} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Weekly schedule */}
+      <div style={{ borderTop: '1px solid var(--border)', paddingTop: 24 }}>
+        <p className="section-title">Weekly Schedule</p>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {['Day', 'Task', 'Time'].map(h => (
+                <th key={h} style={{
+                  fontFamily: 'Dropline, sans-serif', fontSize: 10, color: 'var(--text-dim)',
+                  textTransform: 'uppercase', letterSpacing: '1px',
+                  padding: '10px 16px', textAlign: 'left',
+                  borderBottom: '1px solid var(--border)',
+                }}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {SCHEDULE.map(row => (
+              <tr key={row.day} style={{ borderBottom: '1px solid rgba(140,100,255,0.08)' }}>
+                <td style={{
+                  padding: '12px 16px', minWidth: 110,
+                  fontFamily: 'ChargerExtrabold, Outfit, sans-serif',
+                  fontWeight: 700, fontSize: 12, textTransform: 'uppercase',
+                  color: 'var(--lemon)', WebkitTextFillColor: 'var(--lemon)', background: 'none',
+                }}>
+                  {row.day}
+                </td>
+                <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-muted)', fontFamily: 'Dropline, sans-serif' }}>
+                  {row.task}
+                </td>
+                <td style={{ padding: '12px 16px', fontFamily: 'Dropline, sans-serif', fontSize: 11, color: 'var(--violet-light)', whiteSpace: 'nowrap' }}>
+                  {row.time}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
