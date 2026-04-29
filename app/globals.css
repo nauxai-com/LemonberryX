@@ -9,6 +9,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'ChargerExtrabold';
+  src: url('/fonts/ChargerExtrabold-4qG9.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* === SPEC COLOR TOKENS === */
   --purple: #5B3DF5;
@@ -61,8 +69,10 @@ p, span, label, input, button, td, th, li, a {
 }
 
 h1, h2, h3, h4, h5, h6, .gradient-heading, .page-title, .brand-text {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
+  font-family: 'ChargerExtrabold', 'Outfit', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   background: var(--gradient-heading);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -326,7 +336,7 @@ input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
 }
 
 .sidebar .logo {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'ChargerExtrabold', 'Outfit', sans-serif;
   font-weight: 900;
   font-size: 22px;
   background: linear-gradient(135deg, #FFB86C, #FF7ACD, #5B3DF5);
@@ -401,8 +411,8 @@ input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
 }
 
 .header .title-block h1 {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 800;
+  font-family: 'ChargerExtrabold', 'Outfit', sans-serif;
+  font-weight: 900;
   font-size: 28px;
   background: linear-gradient(135deg, #FFB86C, #FF7ACD, #5B3DF5, #5CF2E3);
   -webkit-background-clip: text;
