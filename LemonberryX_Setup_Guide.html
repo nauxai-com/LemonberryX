@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LemonberryX — Full Setup Guide (Golden Week Edition)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  :root {
+    --bg:#F7F5FF;--panel:#FFFFFF;--border:rgba(112,72,248,0.14);
+    --violet:#7048F8;--berry:#FF3B8C;--mint:#00C896;--gold:#C89000;--orange:#E65100;
+    --text:#1A1040;--text-m:#5A4880;--text-d:#9B8BB8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 60% 50% at 5% 5%,rgba(112,72,248,0.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 40% at 95% 90%,rgba(255,59,140,0.05) 0%,transparent 55%);
+    pointer-events:none;z-index:0;}
+  body::after{content:'';position:fixed;inset:0;
+    background-image:radial-gradient(circle,rgba(112,72,248,0.10) 1px,transparent 1px);
+    background-size:28px 28px;pointer-events:none;z-index:0;opacity:0.4;}
+  #wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:48px 24px 80px;}
+
+  /* HEADER */
+  .header{text-align:center;margin-bottom:44px;}
+  .logo-pill{display:inline-flex;align-items:center;gap:8px;background:var(--violet);color:#fff;
+    font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    padding:6px 14px;border-radius:20px;margin-bottom:18px;}
+  .logo-dot{width:6px;height:6px;background:#E8F400;border-radius:50%;}
+  h1{font-size:36px;font-weight:700;line-height:1.15;margin-bottom:12px;}
+  h1 span{color:var(--violet);}
+  .subtitle{font-size:14px;color:var(--text-m);max-width:520px;margin:0 auto 12px;}
+  .gw-badge{display:inline-flex;align-items:center;gap:7px;
+    background:rgba(200,144,0,0.10);border:1px solid rgba(200,144,0,0.30);
+    color:var(--gold);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;}
+
+  /* LEGEND */
+  .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 20px;}
+  .leg-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-m);}
+  .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .d-you{background:var(--mint);} .d-key{background:var(--violet);}
+  .d-gpu{background:var(--gold);} .d-test{background:var(--berry);} .d-wait{background:#FF9800;}
+
+  /* PHASE */
+  .phase-header{display:flex;align-items:center;gap:14px;
+    margin:48px 0 20px;padding-bottom:14px;border-bottom:2px solid var(--border);}
+  .phase-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .pi-v{background:rgba(112,72,248,0.12);} .pi-m{background:rgba(0,200,150,0.12);}
+  .pi-g{background:rgba(200,144,0,0.12);} .pi-b{background:rgba(255,59,140,0.10);}
+  .phase-num{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-d);}
+  .phase-title{font-size:20px;font-weight:700;}
+  .phase-sub{font-size:12px;color:var(--text-m);margin-top:2px;}
+
+  /* STEPS */
+  .steps{display:flex;flex-direction:column;gap:10px;}
+  .step{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px 16px 58px;position:relative;transition:box-shadow 0.2s;}
+  .step:hover{box-shadow:0 4px 20px rgba(112,72,248,0.08);}
+  .step.you {border-left:3px solid var(--mint);}
+  .step.wait{border-left:3px solid #FF9800;}
+  .step.key {border-left:3px solid var(--violet);}
+  .step.test{border-left:3px solid var(--berry);}
+  .step.gpu {border-left:3px solid var(--gold);}
+  .step-num{position:absolute;left:16px;top:16px;width:28px;height:28px;border-radius:7px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;}
+  .step.you  .step-num{background:rgba(0,200,150,0.12);color:var(--mint);}
+  .step.wait .step-num{background:rgba(255,152,0,0.12);color:#FF9800;}
+  .step.key  .step-num{background:rgba(112,72,248,0.12);color:var(--violet);}
+  .step.test .step-num{background:rgba(255,59,140,0.10);color:var(--berry);}
+  .step.gpu  .step-num{background:rgba(200,144,0,0.12);color:var(--gold);}
+  .step-tag{display:inline-block;font-size:9px;font-weight:700;letter-spacing:1.5px;
+    text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:5px;}
+  .step.you  .step-tag{background:rgba(0,200,150,0.12);color:var(--mint);}
+  .step.wait .step-tag{background:rgba(255,152,0,0.12);color:#FF9800;}
+  .step.key  .step-tag{background:rgba(112,72,248,0.10);color:var(--violet);}
+  .step.test .step-tag{background:rgba(255,59,140,0.08);color:var(--berry);}
+  .step.gpu  .step-tag{background:rgba(200,144,0,0.12);color:var(--gold);}
+  .pr{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+    letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:5px;margin-bottom:6px;}
+  .pr-h{background:rgba(255,59,140,0.10);color:var(--berry);}
+  .pr-m{background:rgba(255,152,0,0.10);color:#E65100;}
+  .pr-l{background:rgba(112,72,248,0.08);color:var(--violet);}
+  .pr-g{background:rgba(200,144,0,0.12);color:var(--gold);}
+  .step-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .step-body{font-size:13px;color:var(--text-m);line-height:1.6;}
+  .step-body strong{color:var(--text);font-weight:600;}
+  .step-body a{color:var(--violet);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(112,72,248,0.3);}
+  .step-body a:hover{border-bottom-color:var(--violet);}
+  .subs{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+  .sub{display:flex;gap:8px;font-size:12px;color:var(--text-m);align-items:flex-start;}
+  .sub::before{content:'→';color:var(--text-d);flex-shrink:0;margin-top:1px;}
+  .path{display:inline-block;background:rgba(112,72,248,0.08);border:1px solid rgba(112,72,248,0.18);
+    color:var(--violet);font-family:'Space Mono',monospace;font-size:11px;
+    padding:2px 8px;border-radius:5px;margin:1px 2px;}
+  .note{background:rgba(112,72,248,0.06);border:1px solid rgba(112,72,248,0.18);
+    border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-m);margin-top:8px;line-height:1.6;}
+  .note strong{color:var(--violet);}
+  .warn{background:rgba(255,152,0,0.07);border:1px solid rgba(255,152,0,0.25);
+    border-radius:10px;padding:12px 14px;font-size:12px;color:#7A4400;margin-top:8px;line-height:1.6;}
+  .warn strong{color:var(--orange);}
+
+  /* GPU OPTIONS */
+  .gpu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
+  @media(max-width:620px){.gpu-grid{grid-template-columns:1fr;}}
+  .gpu-card{border-radius:10px;padding:14px;border:1px solid var(--border);background:var(--panel);}
+  .gpu-card.rec{border-color:rgba(0,200,150,0.4);background:rgba(0,200,150,0.04);}
+  .gpu-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+  .gpu-card.rec .gpu-lbl{color:var(--mint);}
+  .gpu-card:not(.rec) .gpu-lbl{color:var(--text-d);}
+  .gpu-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .gpu-desc{font-size:11px;color:var(--text-m);line-height:1.5;}
+
+  /* GOLDEN WEEK PLAN */
+  .gw-plan{background:var(--panel);border:1px solid rgba(200,144,0,0.30);
+    border-radius:16px;padding:24px;margin:44px 0;}
+  .gw-plan h3{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:16px;}
+  .gw-days{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+  @media(max-width:600px){.gw-days{grid-template-columns:1fr 1fr;}}
+  .gw-day{background:rgba(200,144,0,0.06);border:1px solid rgba(200,144,0,0.20);border-radius:10px;padding:12px;}
+  .gw-label{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .gw-tasks{font-size:11px;color:var(--text-m);line-height:1.7;}
+  .gw-tasks span{display:block;}
+
+  /* SUMMARY */
+  .summary{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px;margin-top:48px;}
+  .summary h3{font-size:16px;font-weight:700;margin-bottom:18px;}
+  .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:560px){.sum-grid{grid-template-columns:1fr;} h1{font-size:26px;}}
+  .sc{border-radius:10px;padding:16px;font-size:12px;line-height:1.8;}
+  .sc.g{background:rgba(0,200,150,0.05);border:1px solid rgba(0,200,150,0.25);}
+  .sc.o{background:rgba(255,152,0,0.05);border:1px solid rgba(255,152,0,0.20);}
+  .slbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+  .sc.g .slbl{color:var(--mint);} .sc.o .slbl{color:#E65100;}
+  .si{display:flex;align-items:flex-start;gap:7px;color:var(--text-m);padding:1px 0;}
+  .sc.g .si::before{content:'✓';color:var(--mint);font-weight:700;flex-shrink:0;}
+  .sc.o .si::before{content:'○';color:#FF9800;font-weight:700;flex-shrink:0;}
+  .hint{text-align:center;font-size:11px;color:var(--text-d);margin-top:28px;}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+<div class="header">
+  <div class="logo-pill"><div class="logo-dot"></div>LemonberryX</div>
+  <h1>Full Setup Guide<br><span>Golden Week Edition</span></h1>
+  <p class="subtitle">Every step — files, API keys, repos, GPU, all of it. No tech experience needed. Do phases in order.</p>
+  <div class="gw-badge">🇯🇵 5 days off — let's build the whole thing</div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot d-you"></div>You do alone</div>
+  <div class="leg-item"><div class="leg-dot d-key"></div>Get API key</div>
+  <div class="leg-item"><div class="leg-dot d-gpu"></div>GPU step</div>
+  <div class="leg-item"><div class="leg-dot d-test"></div>Test step</div>
+  <div class="leg-item"><div class="leg-dot d-wait"></div>Save for Claude</div>
+</div>
+
+
+<!-- ══ PHASE 1 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-v">📁</div>
+  <div><div class="phase-num">Phase 1</div><div class="phase-title">Set Up Your Files</div><div class="phase-sub">5 min — do this first, everything else depends on it</div></div>
+</div>
+<div class="steps">
+
+  <div class="step you"><div class="step-num">1</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Create a <span class="path">LemonberryX</span> folder on your desktop</div>
+    <div class="step-body">Right-click desktop → New Folder → name it <strong>LemonberryX</strong>. This is your app's home.</div>
+  </div>
+
+  <div class="step you"><div class="step-num">2</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Move your 3 HTML files into that folder</div>
+    <div class="step-body">Drag <strong>LemonberryX.html</strong>, <strong>LemonberryX_Calendar.html</strong>, and <strong>LemonberryX_Thumbmaker.html</strong> into the LemonberryX folder.</div>
+  </div>
+
+  <div class="step you"><div class="step-num">3</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Create a <span class="path">fonts</span> subfolder and add the 4 font files</div>
+    <div class="step-body">
+      Inside LemonberryX → make a folder called <strong>fonts</strong> → drop these 4 files in:
+      <div class="subs">
+        <div class="sub">ChargerExtrabold-4qG9.otf</div>
+        <div class="sub">ChargerBold-gXaY.otf</div>
+        <div class="sub">Charger-XRDo.otf</div>
+        <div class="sub">DroplineRegular-Wpegz.otf</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step test"><div class="step-num">4</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">Double-click LemonberryX.html — confirm all 6 tabs load</div>
+    <div class="step-body">Opens in browser. Dark background, 4 channels in sidebar, 6 tabs across top. If it looks right — move on.</div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 2 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-v">🔑</div>
+  <div><div class="phase-num">Phase 2</div><div class="phase-title">Get All API Keys</div><div class="phase-sub">45 min — open Notepad/Notes right now and paste each key in as you get it, labelled</div></div>
+</div>
+<div class="steps">
+
+  <div class="step key"><div class="step-num">5</div>
+    <div class="step-tag">API Key</div>
+    <div class="pr pr-h">🔴 Required for Thumbmaker AI Suggest</div>
+    <div class="step-title">Anthropic API key</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → sign in (same account as Claude)</div>
+        <div class="sub">Left menu → <strong>API Keys</strong> → <strong>Create Key</strong> → name it "LemonberryX"</div>
+        <div class="sub">Copy the key → paste in notes as: <strong>ANTHROPIC =</strong></div>
+        <div class="sub">Settings → Billing → add $5 credit (costs ~$0.01 per AI Suggest click)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step key"><div class="step-num">6</div>
+    <div class="step-tag">API Key</div>
+    <div class="pr pr-h">🔴 Required for voiceover stage</div>
+    <div class="step-title">ElevenLabs API key</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> → sign in → click your profile picture top right</div>
+        <div class="sub"><strong>Profile + API Key</strong> → copy the key → paste as: <strong>ELEVENLABS =</strong></div>
+      </div>
+      <div class="note">Free tier = 10,000 chars/month. Starter ($5/mo) = 30,000 chars = ~3 full videos.</div>
+    </div>
+  </div>
+
+  <div class="step key"><div class="step-num">7</div>
+    <div class="step-tag">API Key</div>
+    <div class="pr pr-h">🔴 Required for Shorts B-roll footage (free)</div>
+    <div class="step-title">Pexels API key</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://www.pexels.com/api/" target="_blank">pexels.com/api</a> → <strong>Get Started</strong> → fill form → check email → confirm</div>
+        <div class="sub">Back on the API page → copy your key → paste as: <strong>PEXELS =</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step key"><div class="step-num">8</div>
+    <div class="step-tag">API Key</div>
+    <div class="pr pr-h">🔴 Required for ViMax + viral-ai-vids (free tier)</div>
+    <div class="step-title">Google AI Studio API key</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → sign in with Google</div>
+        <div class="sub">Click <strong>Get API Key</strong> (top left) → <strong>Create API Key</strong> → copy → paste as: <strong>GOOGLE_AI =</strong></div>
+      </div>
+      <div class="note"><strong>Free tier is very generous.</strong> Powers ViMax's multi-agent documentary pipeline using Google's Veo video generation — no local GPU needed at all for this tool.</div>
+    </div>
+  </div>
+
+  <div class="step key"><div class="step-num">9</div>
+    <div class="step-tag">API Key</div>
+    <div class="pr pr-m">🟡 For AI model routing (free)</div>
+    <div class="step-title">OpenRouter API key</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> → sign up → <strong>Keys</strong> → <strong>Create Key</strong> → name "LemonberryX"</div>
+        <div class="sub">Copy → paste as: <strong>OPENROUTER =</strong></div>
+      </div>
+      <div class="note">Routes research tasks to free models automatically. Saves Anthropic credits for high-value script work only.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 3 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-v">✏️</div>
+  <div><div class="phase-num">Phase 3</div><div class="phase-title">Add Anthropic Key to Thumbmaker</div><div class="phase-sub">5 min — one copy-paste in a text editor</div></div>
+</div>
+<div class="steps">
+
+  <div class="step you"><div class="step-num">10</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Open LemonberryX_Thumbmaker.html in Notepad/TextEdit — NOT your browser</div>
+    <div class="step-body">
+      Right-click the file → <strong>Open With</strong> → <strong>Notepad</strong> (Windows) or <strong>TextEdit</strong> (Mac).
+      <div class="note">Mac only: if TextEdit opens → go to Format menu → click <strong>Make Plain Text</strong> before touching anything.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">11</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Press Ctrl+F (Cmd+F on Mac) and search: <span class="path">api.anthropic.com</span></div>
+    <div class="step-body">You'll land on a line starting with <span class="path">const res = await fetch</span>. This is the line you need.</div>
+  </div>
+
+  <div class="step you"><div class="step-num">12</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Find <span class="path">'Content-Type':'application/json'</span> and replace that whole piece</div>
+    <div class="step-body">
+      Find: <span class="path">'Content-Type':'application/json'</span><br><br>
+      Replace with this (swap YOUR_KEY_HERE with your actual Anthropic key):
+      <div class="subs">
+        <div class="sub"><span class="path">'Content-Type':'application/json','x-api-key':'YOUR_KEY_HERE','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'</span></div>
+      </div>
+      Save (Ctrl+S / Cmd+S).
+      <div class="warn">⚠️ Never share this file after adding the key. It's local only — never uploads anywhere when run from your computer.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 4 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-m">📦</div>
+  <div><div class="phase-num">Phase 4</div><div class="phase-title">Install Core Tools (No GPU Needed)</div><div class="phase-sub">2–3 hrs total — mostly waiting for downloads. Do these before GPU day.</div></div>
+</div>
+<div class="steps">
+
+  <div class="step you"><div class="step-num">13</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-h">🔴 Everything else needs this first</div>
+    <div class="step-title">Install Python</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a> → click the big yellow Download button</div>
+        <div class="sub">Run installer → <strong>CRITICAL: check "Add Python to PATH"</strong> before clicking Install</div>
+        <div class="sub">Finish → verify: open Terminal/Command Prompt → type <span class="path">python --version</span> → should show a number</div>
+      </div>
+      <div class="note">Terminal on Mac: press Cmd+Space → type Terminal → Enter. On Windows: press Windows key → type cmd → Enter.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">14</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-h">🔴 Runs the Shorts factory</div>
+    <div class="step-title">Install Docker Desktop</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank">docker.com/products/docker-desktop</a> → download for your OS → install → restart computer</div>
+        <div class="sub">Open Docker Desktop → wait until bottom left says <strong>"Engine running"</strong></div>
+      </div>
+      <div class="note">Leave Docker Desktop open in the background whenever using the Shorts automation. Like Spotify — just leave it running.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">15</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-h">🔴 Text → Shorts (voice + captions + B-roll)</div>
+    <div class="step-title">Install short-video-maker</div>
+    <div class="step-body">
+      Open Terminal/Command Prompt. Type this whole line and press Enter (replace YOUR_PEXELS_KEY with your key from Step 7):
+      <div class="subs">
+        <div class="sub"><span class="path">docker run -d --name short-video-maker --restart unless-stopped -p 3123:3123 -e PEXELS_API_KEY=YOUR_PEXELS_KEY -v ~/shorts-output:/app/output gyoridavid/short-video-maker:latest-tiny</span></div>
+      </div>
+      Wait 5–10 min for download. Then open browser → go to <span class="path">http://localhost:3123</span>. If you see a UI — it worked.
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">16</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-h">🔴 Auto-detects viral moments from long videos</div>
+    <div class="step-title">Install AI-Shorts-Generator</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator" target="_blank">github.com/SamurAIGPT/AI-Youtube-Shorts-Generator</a></div>
+        <div class="sub">Click green <strong>Code</strong> → <strong>Download ZIP</strong> → unzip into LemonberryX folder</div>
+        <div class="sub">Open Terminal → drag the unzipped folder into the Terminal window (auto-sets location)</div>
+        <div class="sub">Type: <span class="path">pip install -r requirements.txt</span> → press Enter → wait</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">17</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-m">🟡 Full Shorts pipeline with niche profiles</div>
+    <div class="step-title">Install youtube-shorts-pipeline</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/rushindrasinha/youtube-shorts-pipeline" target="_blank">github.com/rushindrasinha/youtube-shorts-pipeline</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">pip install -e .</span> → wait</div>
+      </div>
+      <div class="note">You'll create a <strong>grimm-archives.yaml</strong> config file that bakes in CH-01's style, tone, and visual preferences. Every Short generated after that automatically matches your channel DNA.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">18</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-m">🟡 Multi-agent documentary (Director + Screenwriter + Producer)</div>
+    <div class="step-title">Install ViMax</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/HKUDS/ViMax" target="_blank">github.com/HKUDS/ViMax</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">pip install uv</span> → then: <span class="path">uv sync</span></div>
+        <div class="sub">Open the file <span class="path">configs/default.yaml</span> in Notepad/TextEdit</div>
+        <div class="sub">Find <span class="path">api_key: YOUR_OPENROUTER_KEY</span> → replace with your OpenRouter key</div>
+        <div class="sub">Find <span class="path">api_key: YOUR_GOOGLE_API_KEY</span> (appears twice) → replace both with your Google AI key</div>
+        <div class="sub">Save the file</div>
+      </div>
+      <div class="note"><strong>No GPU needed for ViMax</strong> — it uses Google's Veo API for video generation. You give it a topic, its three AI agents argue about the best approach, then produce the full documentary. Wild tool.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">19</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-m">🟡 Prompt → full video assembly (agentic)</div>
+    <div class="step-title">Install OpenMontage</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/calesthio/OpenMontage" target="_blank">github.com/calesthio/OpenMontage</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">pip install -r requirements.txt</span> → wait</div>
+      </div>
+      <div class="note">Type one sentence like "Documentary about the Gardner Museum heist, 10 minutes, cinematic" and it handles everything — research, script, visuals, voice, captions, music, assembly. One of the most powerful tools in the stack.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">20</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-m">🟡 VEO3 viral Shorts batch generator</div>
+    <div class="step-title">Install viral-ai-vids</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/kaymen99/viral-ai-vids" target="_blank">github.com/kaymen99/viral-ai-vids</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">pip install -r requirements.txt</span></div>
+        <div class="sub">Look for a file called <span class="path">.env</span> (or create a new text file and name it <span class="path">.env</span>) → add this line: <span class="path">GOOGLE_API_KEY=your_google_ai_key_here</span></div>
+      </div>
+      <div class="note">Use this for CH-02 (Betrayal & Revenge). Batch-generate 10 Shorts concepts at once to find what angle sticks before committing production time.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">21</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-m">🟡 Stealth research scraper</div>
+    <div class="step-title">Install Scrapling</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Open Terminal → type: <span class="path">pip install "scrapling[all]>=0.4.7"</span> → Enter → wait</div>
+        <div class="sub">Then: <span class="path">playwright install chromium</span> → Enter → wait</div>
+      </div>
+      <div class="note">Bypasses Cloudflare and grabs competitor video metadata, trending news, and research sources without getting blocked. Feeds into your Crawl4AI research pipeline.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">22</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-l">🔵 Batch clip cutter with GUI</div>
+    <div class="step-title">Install Bulk-Clip-Generator</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/chandrath/Bulk-Clip-Generator" target="_blank">github.com/chandrath/Bulk-Clip-Generator</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">pip install -r requirements.txt</span></div>
+        <div class="sub">To run it: <span class="path">python app.py</span> → a window opens with a visual interface</div>
+      </div>
+      <div class="note">Use every Saturday — load your long-form export, mark clip in/out points visually, batch export all Shorts cuts in one pass.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">23</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-l">🔵 Open-source CapCut alternative</div>
+    <div class="step-title">Install Node.js + OpenCut</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Install Node.js first: <a href="https://nodejs.org" target="_blank">nodejs.org</a> → download LTS → install</div>
+        <div class="sub">Go to <a href="https://github.com/opencut-app/opencut" target="_blank">github.com/opencut-app/opencut</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">Terminal in that folder → type: <span class="path">npm install</span> → wait → then: <span class="path">npm run dev</span></div>
+        <div class="sub">Browser opens at <span class="path">localhost:3000</span> — that's your editor. Don't close the Terminal while using it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">24</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-l">🔵 232+ Claude skills for marketing + content</div>
+    <div class="step-title">Install alirezarezvani/claude-skills</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/alirezarezvani/claude-skills" target="_blank">github.com/alirezarezvani/claude-skills</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">No extra install — used directly from Claude Code. Read the README for activation.</div>
+      </div>
+      <div class="note">Key skills you'll use: <strong>content-creator</strong>, <strong>social-media-analyzer</strong>, <strong>campaign-analytics</strong>, <strong>marketing-strategy-pmm</strong>.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">25</div>
+    <div class="step-tag">You</div>
+    <div class="pr pr-l">🔵 AI editing agent for voiceover recordings</div>
+    <div class="step-title">Install Ceeon/videocut-skills</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://github.com/Ceeon/videocut-skills" target="_blank">github.com/Ceeon/videocut-skills</a> → Download ZIP → unzip into LemonberryX</div>
+        <div class="sub">No install — used from Claude Code. Read the README to register it.</div>
+      </div>
+      <div class="note">Automatically removes silences, stutters, and filler words from any recorded voiceover. Useful for future on-camera content too.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 5 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-m">⚡</div>
+  <div><div class="phase-num">Phase 5</div><div class="phase-title">Set Up n8n (Automation Brain)</div><div class="phase-sub">20–30 min — connects all tools together</div></div>
+</div>
+<div class="steps">
+
+  <div class="step you"><div class="step-num">26</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Log into your n8n dashboard</div>
+    <div class="step-body">
+      Open browser → go to: <span class="path">http://140.238.54.51:5678</span>
+      <div class="note">If it doesn't load → your Oracle server may be stopped. Go to <a href="https://cloud.oracle.com" target="_blank">cloud.oracle.com</a> → Compute → Instances → click Start. Wait 2 min, try again.</div>
+    </div>
+  </div>
+
+  <div class="step you"><div class="step-num">27</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Add all your API keys as n8n Credentials</div>
+    <div class="step-body">
+      Left sidebar → <strong>Settings</strong> → <strong>Credentials</strong> → <strong>Add Credential</strong>. Add these:
+      <div class="subs">
+        <div class="sub">Search "ElevenLabs" → paste your ElevenLabs key → Save</div>
+        <div class="sub">Search "YouTube" → click <strong>Connect with Google</strong> → sign into your channel Google account → allow permissions → Save</div>
+        <div class="sub">Search "HTTP Header Auth" → name it "Anthropic" → add header: Key = <span class="path">x-api-key</span>, Value = your Anthropic key → Save</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step wait"><div class="step-num">28</div>
+    <div class="step-tag">Wait for Claude</div>
+    <div class="step-title">Pipeline → Calendar bridge + Shorts auto-post workflows</div>
+    <div class="step-body">The workflow logic (JSON config, nodes, triggers, connections) is code work. Save for next session — just have credentials ready from Step 27 and Claude builds everything directly into your n8n.</div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 6 — GPU SETUP ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-g">🎮</div>
+  <div><div class="phase-num">Phase 6</div><div class="phase-title">Get a GPU (Cloud Rental — No Hardware Needed)</div><div class="phase-sub">30 min setup — you rent GPU hours, pay only while using, then stop it</div></div>
+</div>
+
+<div class="note" style="margin-bottom:14px">
+  You don't buy anything. You rent a powerful GPU from the cloud for a few hours, run your video generation, then turn it off. Costs $0.44–$0.74/hr. For a 2-hour test session that's under $2.
+</div>
+
+<div class="steps">
+
+  <div class="step gpu"><div class="step-num">29</div>
+    <div class="step-tag">GPU</div>
+    <div class="pr pr-g">Choose your provider</div>
+    <div class="step-title">Pick where to rent your GPU</div>
+    <div class="step-body">
+      <div class="gpu-grid">
+        <div class="gpu-card rec">
+          <div class="gpu-lbl">✅ Recommended</div>
+          <div class="gpu-name">RunPod</div>
+          <div class="gpu-desc">Easiest UI. Pay per second. RTX 3090 from $0.44/hr. Good for Japan timezone. Best for beginners.</div>
+        </div>
+        <div class="gpu-card">
+          <div class="gpu-lbl">Alternative</div>
+          <div class="gpu-name">Vast.ai</div>
+          <div class="gpu-desc">Cheaper if you bid. Slightly more complex. Good for overnight batch runs you set up and walk away from.</div>
+        </div>
+        <div class="gpu-card">
+          <div class="gpu-lbl">Alternative</div>
+          <div class="gpu-name">Lambda Labs</div>
+          <div class="gpu-desc">Very reliable. A100/H100 available. Slightly pricier but fast, stable, and great support.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">30</div>
+    <div class="step-tag">GPU</div>
+    <div class="step-title">Create a RunPod account and add $10 credit</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Go to <a href="https://runpod.io" target="_blank">runpod.io</a> → <strong>Sign Up</strong> → verify email</div>
+        <div class="sub">Click <strong>Billing</strong> (left menu) → add $10 credit via card</div>
+      </div>
+      <div class="note">$10 = about 22 hours on RTX 3090 or 13 hours on RTX 4090. Plenty to install and test everything over Golden Week.</div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">31</div>
+    <div class="step-tag">GPU</div>
+    <div class="step-title">Deploy a pod — pick RTX 3090 or 4090 (24GB VRAM)</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Click <strong>Deploy</strong> (top menu) → <strong>GPU Cloud</strong></div>
+        <div class="sub">Set VRAM filter to minimum <strong>24 GB</strong> (required for HunyuanVideo)</div>
+        <div class="sub">Pick <strong>RTX 3090</strong> (~$0.44/hr, fine for testing) or <strong>RTX 4090</strong> (~$0.74/hr, faster)</div>
+        <div class="sub">Template: select <strong>RunPod PyTorch</strong> (everything pre-installed)</div>
+        <div class="sub">Click <strong>Deploy On-Demand</strong> → wait 1–2 min → status goes green</div>
+      </div>
+      <div class="warn"><strong>⚠️ ALWAYS click Stop or Terminate when done.</strong> A running pod costs money even if you're not typing anything. Set a phone alarm if you need to.</div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">32</div>
+    <div class="step-tag">GPU</div>
+    <div class="step-title">Open the terminal inside RunPod</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">In RunPod dashboard → click your running pod → click <strong>Connect</strong></div>
+        <div class="sub">Click <strong>Start Web Terminal</strong> → a black terminal window opens in your browser</div>
+        <div class="sub">This terminal runs directly on the GPU machine. All GPU install commands go here.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 7 — GPU REPOS ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-g">🎬</div>
+  <div><div class="phase-num">Phase 7</div><div class="phase-title">Install GPU Video Generation Tools</div><div class="phase-sub">All typed into your RunPod terminal — type each line, press Enter, wait before typing next</div></div>
+</div>
+<div class="steps">
+
+  <div class="step gpu"><div class="step-num">33</div>
+    <div class="step-tag">GPU</div>
+    <div class="pr pr-h">🔴 Flagship — install this first</div>
+    <div class="step-title">Install HunyuanVideo-1.5 — 720p in 75 seconds, image-to-video</div>
+    <div class="step-body">
+      Type these one at a time in the RunPod terminal:
+      <div class="subs">
+        <div class="sub"><span class="path">conda create -n HunyuanVideo python=3.11.9 -y</span></div>
+        <div class="sub"><span class="path">conda activate HunyuanVideo</span></div>
+        <div class="sub"><span class="path">conda install pytorch==2.4.0 torchvision pytorch-cuda=12.4 -c pytorch -c nvidia -y</span></div>
+        <div class="sub"><span class="path">git clone https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5</span></div>
+        <div class="sub"><span class="path">cd HunyuanVideo-1.5</span></div>
+        <div class="sub"><span class="path">pip install -r requirements.txt</span></div>
+      </div>
+      <div class="warn"><strong>Takes 20–30 min.</strong> Model weights alone are ~13GB. Let it download — don't close the terminal. Go make coffee.</div>
+      <div class="note">To generate: <span class="path">python sample_video.py --prompt "cinematic vault room gold bars dramatic lighting" --video-size 544 960 --video-length 33 --infer-steps 30</span><br><br>The <strong>I2V model</strong> (Image-to-Video) is what you'll use most — take a Whisk image of a vault, a ship, a crime scene → turn it into a 5-second cinematic clip.</div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">34</div>
+    <div class="step-tag">GPU</div>
+    <div class="pr pr-h">🔴 Long coherent video — constant memory use (min 6GB)</div>
+    <div class="step-title">Install FramePack — long-form AI video with no memory limit</div>
+    <div class="step-body">
+      In RunPod terminal (can do this after HunyuanVideo finishes):
+      <div class="subs">
+        <div class="sub"><span class="path">git clone https://github.com/lllyasviel/FramePack</span></div>
+        <div class="sub"><span class="path">cd FramePack</span></div>
+        <div class="sub"><span class="path">pip install -r requirements.txt</span></div>
+        <div class="sub"><span class="path">python demo_gradio.py</span></div>
+      </div>
+      The last command opens a web UI. In RunPod → <strong>Connect</strong> → <strong>HTTP Service → Port 7860</strong> → opens in browser.
+      <div class="note"><strong>FramePack is unique:</strong> it generates frame-by-frame with <em>constant</em> memory — a 2-minute video uses the same VRAM as a 10-second one. This is what you use for long cinematic sequences in Grimm Archives without running out of memory mid-generation.</div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">35</div>
+    <div class="step-tag">GPU</div>
+    <div class="pr pr-m">🟡 Speed-first B-roll (10 seconds per clip) — needs 14GB VRAM</div>
+    <div class="step-title">Install LTX-Video — fast B-roll at scale</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub"><span class="path">git clone https://github.com/Lightricks/LTX-Video</span></div>
+        <div class="sub"><span class="path">cd LTX-Video</span></div>
+        <div class="sub"><span class="path">pip install -e .</span></div>
+      </div>
+      <div class="note">LTX-Video generates in ~10 seconds per clip. Not as cinematic as HunyuanVideo but 8–10x faster. Use for pattern interrupts every 60–90s in your videos — you need a lot of B-roll clips, and LTX cranks them out fast.</div>
+    </div>
+  </div>
+
+  <div class="step gpu"><div class="step-num">36</div>
+    <div class="step-tag">GPU</div>
+    <div class="pr pr-l">🔵 Bookmark only — too new to use yet</div>
+    <div class="step-title">Bookmark PKU-YuanGroup/Helios — check back in 2–3 months</div>
+    <div class="step-body">
+      <div class="subs">
+        <div class="sub">Bookmark: <a href="https://github.com/PKU-YuanGroup/Helios" target="_blank">github.com/PKU-YuanGroup/Helios</a></div>
+        <div class="sub">March 2026 paper — generates real-time minute-scale video. Still too unstable for production.</div>
+        <div class="sub">When it matures it will replace HunyuanVideo + FramePack + LTX-Video in one shot</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 8 ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-b">📊</div>
+  <div><div class="phase-num">Phase 8</div><div class="phase-title">Install Metabase (Analytics Dashboard)</div><div class="phase-sub">20 min — runs on your Oracle server, shows all channel metrics in one place</div></div>
+</div>
+<div class="steps">
+
+  <div class="step you"><div class="step-num">37</div>
+    <div class="step-tag">You</div>
+    <div class="step-title">Install Metabase on Oracle via Docker</div>
+    <div class="step-body">
+      SSH into your Oracle server. If you don't know how: in Oracle Cloud dashboard → your instance → click <strong>Cloud Shell</strong> (top right terminal icon). Type:
+      <div class="subs">
+        <div class="sub"><span class="path">docker run -d -p 3000:3000 --name metabase --restart unless-stopped metabase/metabase</span></div>
+      </div>
+      Wait 2 min → open browser → <span class="path">http://140.238.54.51:3000</span> → follow the setup wizard → create admin account.
+      <div class="note">Not urgent to connect to data yet — just get it installed. When n8n workflows are live and feeding channel data, Metabase will show your RPM trends, views per video, and retention across all 4 channels in one dashboard.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ PHASE 9 — TESTS ══ -->
+<div class="phase-header">
+  <div class="phase-icon pi-b">🧪</div>
+  <div><div class="phase-num">Phase 9</div><div class="phase-title">Test Everything</div><div class="phase-sub">Test after each phase — don't wait until the end</div></div>
+</div>
+<div class="steps">
+
+  <div class="step test"><div class="step-num">38</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">Main app — all 6 tabs load correctly</div>
+    <div class="step-body">Open LemonberryX.html → click every tab. Queue = 30 videos. Tools tab = full list. No broken sections.</div>
+  </div>
+
+  <div class="step test"><div class="step-num">39</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">Thumbmaker AI Suggest</div>
+    <div class="step-body">Open LemonberryX_Thumbmaker.html → type "Gardner Museum Heist" → click <strong>AI Suggest</strong>. Should return 3 ALL CAPS thumbnail text options in a few seconds. Error = API key in Step 12 wasn't saved right.</div>
+  </div>
+
+  <div class="step test"><div class="step-num">40</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">Thumbmaker export</div>
+    <div class="step-body">Pick CH-01, add headline → click <strong>Export PNG</strong>. A 1280×720 image downloads. Open it — should look like a real thumbnail.</div>
+  </div>
+
+  <div class="step test"><div class="step-num">41</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">Calendar — full flow</div>
+    <div class="step-body">
+      Open LemonberryX_Calendar.html:
+      <div class="subs">
+        <div class="sub">Add a video to Pending Inbox manually</div>
+        <div class="sub">Fill Upload Package (A/B/C titles, description, tags)</div>
+        <div class="sub">Run Virality Check → score calculates across 23 checks</div>
+        <div class="sub">Click Copy All → full brief copies to clipboard</div>
+      </div>
+      Note any step that fails — tell Claude next session.
+    </div>
+  </div>
+
+  <div class="step test"><div class="step-num">42</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">short-video-maker — generate a test Short</div>
+    <div class="step-body">Docker running → go to <span class="path">http://localhost:3123</span> → paste a 30-second hook script from one of your Grimm Archives videos → hit Generate. Should produce a vertical video with captions. Download and play it.</div>
+  </div>
+
+  <div class="step test"><div class="step-num">43</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">ViMax — one test documentary</div>
+    <div class="step-body">
+      In ViMax folder → Terminal → type:
+      <div class="subs">
+        <div class="sub"><span class="path">python3 main_idea2video.py --topic "The Gardner Museum Heist"</span></div>
+      </div>
+      Watch it work. Three agents will discuss the approach, then start producing. Quality may vary — this is a test run.
+    </div>
+  </div>
+
+  <div class="step test"><div class="step-num">44</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">HunyuanVideo — 5-second test clip</div>
+    <div class="step-body">
+      In RunPod terminal (HunyuanVideo folder active, pod running):
+      <div class="subs">
+        <div class="sub"><span class="path">python sample_video.py --prompt "cinematic gold vault dramatic lighting" --video-size 544 960 --video-length 33 --infer-steps 30</span></div>
+        <div class="sub">Wait ~45–60 seconds on RTX 3090</div>
+        <div class="sub">A .mp4 file appears in output → download it → check quality</div>
+      </div>
+      <div class="warn">⚠️ Stop the RunPod pod after testing. Don't leave it running.</div>
+    </div>
+  </div>
+
+  <div class="step test"><div class="step-num">45</div>
+    <div class="step-tag">Test</div>
+    <div class="step-title">FramePack — 10-second continuous clip</div>
+    <div class="step-body">
+      Run <span class="path">python demo_gradio.py</span> in RunPod → open UI via Port 7860 → upload a Whisk image → type a motion prompt like "slow cinematic pan across a dusty vault room" → generate. Compare quality and style vs HunyuanVideo — both have different strengths.
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══ GOLDEN WEEK PLAN ══ -->
+<div class="gw-plan">
+  <h3>🇯🇵 Golden Week 5-Day Battle Plan</h3>
+  <div class="gw-days">
+    <div class="gw-day">
+      <div class="gw-label">Day 1</div>
+      <div class="gw-tasks">
+        <span>📁 Phases 1–3</span>
+        <span>Folder + fonts</span>
+        <span>All 5 API keys</span>
+        <span>Anthropic key → Thumbmaker</span>
+        <span>Test app + Thumbmaker</span>
+      </div>
+    </div>
+    <div class="gw-day">
+      <div class="gw-label">Day 2</div>
+      <div class="gw-tasks">
+        <span>📦 Phase 4 Part A</span>
+        <span>Python + Docker</span>
+        <span>short-video-maker</span>
+        <span>AI-Shorts-Generator</span>
+        <span>youtube-shorts-pipeline</span>
+        <span>Test Shorts output</span>
+      </div>
+    </div>
+    <div class="gw-day">
+      <div class="gw-label">Day 3</div>
+      <div class="gw-tasks">
+        <span>📦 Phase 4 Part B</span>
+        <span>ViMax + OpenMontage</span>
+        <span>viral-ai-vids + Scrapling</span>
+        <span>Bulk-Clip-Generator</span>
+        <span>claude-skills + videocut-skills</span>
+        <span>⚡ n8n credentials</span>
+      </div>
+    </div>
+    <div class="gw-day">
+      <div class="gw-label">Day 4</div>
+      <div class="gw-tasks">
+        <span>🎮 Phases 6–7 Part A</span>
+        <span>RunPod account + $10</span>
+        <span>Deploy RTX 3090 pod</span>
+        <span>Install HunyuanVideo-1.5</span>
+        <span>Test video generation</span>
+        <span>Stop pod when done!</span>
+      </div>
+    </div>
+    <div class="gw-day">
+      <div class="gw-label">Day 5</div>
+      <div class="gw-tasks">
+        <span>🎬 Phase 7 Part B</span>
+        <span>Install FramePack</span>
+        <span>Install LTX-Video</span>
+        <span>📊 Metabase on Oracle</span>
+        <span>OpenCut install</span>
+        <span>All final tests 38–45</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ SUMMARY ══ -->
+<div class="summary">
+  <h3>📋 Golden Week = you. Next Claude session = merges + automation.</h3>
+  <div class="sum-grid">
+    <div class="sc g">
+      <div class="slbl">✅ You grind during Golden Week</div>
+      <div class="si">All 5 API keys collected + saved</div>
+      <div class="si">Anthropic key → Thumbmaker</div>
+      <div class="si">Python + Docker installed</div>
+      <div class="si">short-video-maker + AI-Shorts-Generator</div>
+      <div class="si">youtube-shorts-pipeline + viral-ai-vids</div>
+      <div class="si">ViMax + OpenMontage + Scrapling</div>
+      <div class="si">Bulk-Clip-Generator + OpenCut</div>
+      <div class="si">claude-skills + videocut-skills</div>
+      <div class="si">n8n credentials (ElevenLabs + YouTube + Anthropic)</div>
+      <div class="si">RunPod account + $10 credit</div>
+      <div class="si">HunyuanVideo-1.5 installed + tested</div>
+      <div class="si">FramePack + LTX-Video installed</div>
+      <div class="si">Metabase on Oracle</div>
+      <div class="si">All tests 38–45 completed</div>
+    </div>
+    <div class="sc o">
+      <div class="slbl">○ Save for next Claude session</div>
+      <div class="si">Merge Calendar as Tab 7 into main app</div>
+      <div class="si">Merge Thumbmaker as Tab 8</div>
+      <div class="si">Update Pipeline Stage 8 → Thumbmaker</div>
+      <div class="si">Build n8n Pipeline → Calendar bridge</div>
+      <div class="si">Build n8n Shorts auto-post workflow</div>
+      <div class="si">Wire daily Crawl4AI research cron</div>
+      <div class="si">Build grimm-archives.yaml niche profile</div>
+      <div class="si">Metabase → connect to n8n data source</div>
+      <div class="si">Helios — revisit in 2–3 months</div>
+    </div>
+  </div>
+</div>
+
+<p class="hint">Ctrl+P / Cmd+P to print as a physical checklist</p>
+
+</div>
+</body>
+</html>

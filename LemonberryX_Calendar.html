@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LemonberryX — Content Calendar</title>
+<style>
+@font-face{font-family:'Charger';src:url('fonts/ChargerExtrabold-4qG9.otf') format('opentype');font-weight:800;}
+@font-face{font-family:'Charger';src:url('fonts/ChargerBold-gXaY.otf') format('opentype');font-weight:700;}
+@font-face{font-family:'Charger';src:url('fonts/Charger-XRDo.otf') format('opentype');font-weight:400;}
+@font-face{font-family:'Dropline';src:url('fonts/DroplineRegular-Wpegz.otf') format('opentype');font-weight:400;}
+
+[data-theme="dark"]{
+  --bg:#07050F;--bg2:#0E0A1E;--panel:#14102A;--card:#1C1635;--card2:#231945;
+  --border:rgba(140,100,255,0.18);--border-hi:rgba(140,100,255,0.45);
+  --text:#F0EAFF;--text-m:rgba(200,185,255,0.72);--text-d:rgba(200,185,255,0.38);
+  --hbg:rgba(14,10,30,0.94);--bbg:rgba(14,10,30,0.55);--tbg:rgba(20,16,42,0.55);
+  --chip:rgba(255,255,255,0.04);--chip2:rgba(255,255,255,0.025);
+  --inp:#14102A;--inp2:#1C1635;--shadow:0 8px 40px rgba(0,0,0,0.55);
+  --grain:.5;--mesh:1;--scr:rgba(140,100,255,0.3);
+}
+[data-theme="light"]{
+  --bg:#F2EFFF;--bg2:#EAE5FF;--panel:#FFFFFF;--card:#FAFAFE;--card2:#F3F0FF;
+  --border:rgba(112,72,248,0.15);--border-hi:rgba(112,72,248,0.40);
+  --text:#1A1040;--text-m:#5A4880;--text-d:#8B7BAA;
+  --hbg:rgba(242,239,255,0.96);--bbg:rgba(234,229,255,0.82);--tbg:rgba(242,239,255,0.87);
+  --chip:rgba(112,72,248,0.06);--chip2:rgba(112,72,248,0.04);
+  --inp:#FFFFFF;--inp2:#F3F0FF;--shadow:0 8px 40px rgba(112,72,248,0.10);
+  --grain:0;--mesh:0.5;--scr:rgba(112,72,248,0.25);
+}
+:root{
+  --v:#7048F8;--vl:#9B78FF;--vd:#4520C8;
+  --ch01:#00F5C4;--ch02:#FF3B8C;--ch03:#9B78FF;--ch04:#4FC3F7;
+  --mint:#00F5C4;--lemon:#E8F400;--berry:#FF3B8C;
+}
+[data-theme="light"]:root,[data-theme="light"]{
+  --ch01:#009E80;--mint:#009E80;--lemon:#8A9000;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Dropline','Courier New',monospace;background:var(--bg);color:var(--text);
+  overflow:hidden;transition:background .3s,color .3s;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--mesh);
+  background:radial-gradient(ellipse 80% 60% at 15% 10%,rgba(112,72,248,.18) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 50% at 85% 80%,rgba(255,59,140,.10) 0%,transparent 55%);
+  transition:opacity .3s;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--grain);
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  transition:opacity .3s;}
+#app{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--scr);border-radius:2px;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:11px 26px;
+  border-bottom:1px solid var(--border);background:var(--hbg);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;flex-shrink:0;transition:background .3s;}
+.logo{display:flex;align-items:center;gap:10px;}
+.lm{width:32px;height:32px;background:linear-gradient(135deg,var(--v),var(--berry));border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-family:'Charger',sans-serif;
+  font-weight:800;font-size:13px;color:#fff;box-shadow:0 0 14px rgba(112,72,248,.4);
+  letter-spacing:-1px;text-transform:uppercase;}
+.lt{font-family:'Charger',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.5px;
+  text-transform:uppercase;color:var(--text);}
+.lt span{color:var(--lemon);}
+.lt em{color:var(--berry);font-style:normal;}
+.pb{font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:2px;color:var(--vl);background:rgba(112,72,248,.07);
+  border:1px solid rgba(112,72,248,.2);padding:4px 12px;border-radius:6px;}
+.hr{display:flex;gap:8px;align-items:center;}
+.th-tog{width:34px;height:34px;border-radius:8px;cursor:pointer;border:1px solid var(--border);
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all .2s;}
+.th-tog:hover{border-color:var(--border-hi);}
+.btn{font-family:'Charger',sans-serif;font-weight:700;font-size:10px;text-transform:uppercase;
+  letter-spacing:.5px;padding:7px 13px;border-radius:7px;cursor:pointer;
+  border:1px solid var(--border);transition:all .2s;background:transparent;color:var(--text-m);}
+.btn:hover{border-color:var(--border-hi);color:var(--text);}
+.btn-p{background:linear-gradient(135deg,var(--v),var(--berry));border:none!important;color:#fff;
+  box-shadow:0 3px 16px rgba(112,72,248,.3);}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 5px 22px rgba(112,72,248,.45);}
+.btn-d{background:rgba(255,59,140,.1);border-color:rgba(255,59,140,.3)!important;color:var(--berry)!important;}
+.btn-mint{background:rgba(0,212,170,.1);border-color:rgba(0,212,170,.3)!important;color:var(--mint)!important;}
+
+/* BUFFER BAR */
+.buf-bar{display:flex;align-items:center;gap:9px;padding:9px 26px;border-bottom:1px solid var(--border);
+  background:var(--bbg);backdrop-filter:blur(10px);flex-shrink:0;transition:background .3s;}
+.buf-lbl{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-d);white-space:nowrap;}
+.buf-ch{flex:1;background:var(--card);border:1px solid var(--border);border-radius:7px;
+  padding:6px 9px;display:flex;align-items:center;gap:7px;transition:border-color .2s;min-width:0;}
+.buf-id{font-family:'Charger',sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap;}
+.buf-nm{font-size:9px;color:var(--text-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.buf-tr{flex:1;height:4px;background:rgba(112,72,248,.1);border-radius:2px;overflow:hidden;}
+.buf-fi{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.buf-ct{font-family:'Dropline',monospace;font-size:10px;letter-spacing:.06em;white-space:nowrap;color:var(--text-m);}
+.buf-ct span{color:var(--text-d);}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;padding:9px 26px;border-bottom:1px solid var(--border);
+  background:var(--tbg);flex-shrink:0;flex-wrap:wrap;transition:background .3s;}
+.mnav{display:flex;align-items:center;gap:5px;}
+.nb{background:var(--card);border:1px solid var(--border);border-radius:5px;color:var(--text-m);
+  width:26px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;
+  justify-content:center;transition:all .2s;}
+.nb:hover{border-color:var(--border-hi);color:var(--text);}
+.md{font-family:'Charger',sans-serif;font-weight:800;font-size:14px;text-transform:uppercase;
+  letter-spacing:.5px;min-width:155px;text-align:center;color:var(--text);}
+.tb{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;padding:4px 9px;border-radius:5px;background:var(--card);
+  border:1px solid var(--border);color:var(--text-d);cursor:pointer;transition:all .2s;}
+.tb:hover{border-color:var(--border-hi);color:var(--text);}
+.sst{display:flex;gap:10px;align-items:center;}
+.sc{font-family:'Dropline',monospace;font-size:9px;letter-spacing:.05em;color:var(--text-d);
+  display:flex;align-items:center;gap:4px;}
+.sc strong{color:var(--text-m);}
+.sd{width:6px;height:6px;border-radius:50%;}
+.cf{display:flex;gap:4px;margin-left:auto;}
+.fp{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:4px 10px;border-radius:20px;cursor:pointer;
+  border:1px solid transparent;transition:all .2s;background:var(--card2);color:var(--text-d);}
+.fp:hover{color:var(--text-m);border-color:var(--border);}
+.fa{background:rgba(112,72,248,.12);border-color:var(--v)!important;color:var(--vl)!important;}
+.f1{background:rgba(0,200,150,.1);border-color:var(--ch01)!important;color:var(--ch01)!important;}
+.f2{background:rgba(255,59,140,.1);border-color:var(--ch02)!important;color:var(--ch02)!important;}
+.f3{background:rgba(155,120,255,.1);border-color:var(--ch03)!important;color:var(--ch03)!important;}
+.f4{background:rgba(79,195,247,.1);border-color:var(--ch04)!important;color:var(--ch04)!important;}
+
+/* 3-COL LAYOUT */
+.cal-layout{display:grid;grid-template-columns:248px 1fr 312px;flex:1;overflow:hidden;min-height:0;}
+
+/* INBOX */
+.inbox-panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.inbox-head{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.inbox-title{font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-m);}
+.ibadge{font-family:'Dropline',monospace;font-size:10px;font-weight:700;
+  background:rgba(255,59,140,.1);border:1px solid rgba(255,59,140,.25);color:var(--berry);
+  padding:2px 7px;border-radius:4px;letter-spacing:.06em;}
+.inbox-body{overflow-y:auto;flex:1;padding:7px;display:flex;flex-direction:column;gap:5px;}
+.ii{background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:9px 10px 8px 13px;transition:border-color .2s;position:relative;overflow:hidden;}
+.ii:hover{border-color:var(--border-hi);}
+.ii-bar{position:absolute;left:0;top:0;bottom:0;width:3px;}
+.ii-ch{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.ii-ttl{font-family:'Charger',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;line-height:1.3;margin-bottom:5px;color:var(--text);}
+.ii-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.tbadge{font-size:9px;text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;border-radius:3px;}
+.lf-b{background:rgba(0,200,150,.08);color:var(--mint);border:1px solid rgba(0,200,150,.2);}
+.sh-b{background:rgba(255,59,140,.08);color:var(--berry);border:1px solid rgba(255,59,140,.2);}
+.ii-score{font-family:'Dropline',monospace;font-size:10px;letter-spacing:.06em;}
+.fs{color:var(--berry);}
+.ps{color:var(--mint);}
+.ii-btns{display:flex;gap:4px;}
+.iib{flex:1;font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.3px;padding:5px;border-radius:5px;cursor:pointer;
+  border:1px solid var(--border);background:transparent;color:var(--text-m);transition:all .2s;}
+.iib:hover{border-color:var(--border-hi);color:var(--text);}
+.iib-s{background:rgba(112,72,248,.1);border-color:rgba(112,72,248,.3)!important;color:var(--vl)!important;}
+.iib-e{background:rgba(255,59,140,.08);border-color:rgba(255,59,140,.25)!important;color:var(--berry)!important;}
+.iib-e:hover{background:rgba(255,59,140,.16)!important;}
+.ie{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:7px;padding:24px 14px;text-align:center;}
+.ie-icon{font-size:24px;opacity:.3;}
+.ie-txt{font-family:'Charger',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-d);}
+
+/* CALENDAR */
+.cal-area{display:flex;flex-direction:column;overflow:hidden;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);flex:1;overflow-y:auto;}
+.dh{padding:6px 0;text-align:center;font-family:'Charger',sans-serif;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--text-d);
+  border-bottom:1px solid var(--border);border-right:1px solid var(--border);
+  position:sticky;top:0;z-index:10;background:var(--tbg);backdrop-filter:blur(10px);}
+.cc{min-height:90px;padding:5px;border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);transition:background .15s;}
+.cc:hover{background:rgba(112,72,248,.03);}
+[data-theme="light"] .cc:hover{background:rgba(112,72,248,.04);}
+.cc.empty{background:rgba(0,0,0,.03);}
+[data-theme="light"] .cc.empty{background:rgba(112,72,248,.025);}
+.cc.today .dn{background:var(--v);color:#fff;width:19px;height:19px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;font-weight:800;}
+.dn{font-family:'Dropline',monospace;font-size:10px;letter-spacing:.05em;
+  color:var(--text-d);margin-bottom:4px;display:block;}
+.vc{display:flex;align-items:center;gap:3px;padding:3px 5px;border-radius:4px;margin-bottom:2px;
+  cursor:pointer;transition:all .15s;border:1px solid var(--border);overflow:hidden;}
+.lfc{background:var(--chip);}
+.shc{background:var(--chip2);}
+.vc:hover{border-color:var(--border-hi);}
+.cdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cttl{font-family:'Dropline',monospace;font-size:9px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;color:var(--text-m);flex:1;}
+.failc{border-color:rgba(255,59,140,.3)!important;background:rgba(255,59,140,.05)!important;}
+.cstat{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.s-live{background:var(--mint);box-shadow:0 0 4px var(--mint);}
+.s-scheduled{background:var(--lemon);}
+.s-approved{background:var(--vl);}
+.s-failed{background:var(--berry);box-shadow:0 0 4px var(--berry);}
+.s-pending{background:var(--text-d);}
+.vsel{border-color:var(--vl)!important;background:rgba(112,72,248,.1)!important;}
+.mc{font-size:8px;color:var(--text-d);padding:1px 5px;cursor:pointer;font-family:'Dropline',monospace;}
+
+/* PACKAGE PANEL */
+.pkg-panel{border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.pe{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:9px;padding:32px 16px;text-align:center;}
+.pe-icon{font-size:30px;opacity:.28;}
+.pe-ttl{font-family:'Charger',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-d);}
+.pe-sub{font-size:11px;color:var(--text-d);line-height:1.5;}
+.ph{padding:10px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ph-info{display:flex;flex-direction:column;gap:1px;}
+.ph-ch{font-family:'Charger',sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.ph-ttl{font-size:10px;color:var(--text);font-family:'Charger',sans-serif;font-weight:700;text-transform:uppercase;font-size:9px;line-height:1.3;}
+.pcl{background:none;border:none;color:var(--text-d);cursor:pointer;font-size:13px;
+  padding:2px 6px;border-radius:4px;transition:all .2s;}
+.pcl:hover{background:var(--card2);color:var(--text);}
+.pt{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--card2);}
+.ptb{flex:1;font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;padding:7px 4px;cursor:pointer;border:none;background:transparent;
+  color:var(--text-d);border-bottom:2px solid transparent;transition:all .2s;text-align:center;}
+.ptb:hover{color:var(--text-m);}
+.ptb.act{color:var(--vl);border-bottom-color:var(--vl);}
+.pb-body{overflow-y:auto;flex:1;padding:11px 13px;}
+.pp{display:none;flex-direction:column;gap:9px;}
+.pp.act{display:flex;}
+
+/* Pkg form */
+.ps2{display:flex;flex-direction:column;gap:4px;}
+.pl{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-d);display:flex;align-items:center;justify-content:space-between;}
+.pl-r{color:var(--berry);font-size:9px;}
+.pi{width:100%;background:var(--inp);border:1px solid var(--border);border-radius:5px;
+  color:var(--text);font-family:'Dropline',monospace;font-size:11px;
+  padding:6px 8px;outline:none;transition:border-color .2s;resize:none;}
+.pi:focus{border-color:var(--v);}
+.pi::placeholder{color:var(--text-d);}
+.pi option{background:var(--panel);color:var(--text);}
+.pr2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.div{height:1px;background:var(--border);margin:2px 0;}
+
+/* SEO Title cards */
+.stc{background:var(--card2);border:1px solid var(--border);border-radius:7px;
+  padding:9px 10px;position:relative;transition:border-color .2s;margin-bottom:4px;}
+.stc:hover{border-color:var(--border-hi);}
+.stc-lbl{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;margin-bottom:4px;display:flex;gap:5px;align-items:center;}
+.stag{font-size:8px;padding:1px 5px;border-radius:3px;font-family:'Dropline',monospace;}
+.tc{background:rgba(112,72,248,.1);color:var(--vl);border:1px solid rgba(112,72,248,.2);}
+.tf{background:rgba(255,59,140,.1);color:var(--berry);border:1px solid rgba(255,59,140,.2);}
+.tn{background:rgba(0,200,150,.1);color:var(--mint);border:1px solid rgba(0,200,150,.2);}
+.ts{background:rgba(232,244,0,.08);color:var(--lemon);border:1px solid rgba(232,244,0,.2);}
+.stc-pick{position:absolute;top:7px;right:7px;width:18px;height:18px;border-radius:50%;
+  border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;font-size:10px;transition:all .2s;}
+.stc-pick:hover,.stc-pick.chosen{background:var(--v);border-color:var(--v);color:#fff;}
+.stc-len{font-size:9px;color:var(--text-d);margin-top:3px;}
+
+/* Tags */
+.tags-area{display:flex;flex-wrap:wrap;gap:3px;min-height:28px;padding:5px;
+  background:var(--inp);border:1px solid var(--border);border-radius:5px;}
+.tp{font-family:'Dropline',monospace;font-size:9px;letter-spacing:.02em;
+  padding:2px 6px;border-radius:3px;background:rgba(112,72,248,.08);
+  border:1px solid rgba(112,72,248,.18);color:var(--vl);display:flex;align-items:center;gap:3px;}
+[data-theme="light"] .tp{color:var(--v);}
+.tp-v{background:rgba(255,59,140,.08);border-color:rgba(255,59,140,.2);color:var(--berry);}
+.tp-a{background:rgba(0,200,150,.08);border-color:rgba(0,200,150,.2);color:var(--mint);}
+.tx{cursor:pointer;opacity:.5;font-size:9px;transition:opacity .15s;}
+.tx:hover{opacity:1;}
+.tir{display:flex;gap:5px;align-items:center;margin-top:5px;}
+.tsel{background:var(--inp2);border:1px solid var(--border);border-radius:4px;color:var(--text-m);
+  font-family:'Dropline',monospace;font-size:9px;padding:4px 6px;outline:none;cursor:pointer;width:88px;}
+
+/* Desc blocks */
+.db{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;margin-bottom:4px;}
+.dbl{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--text-d);margin-bottom:4px;}
+.dbt{width:100%;background:transparent;border:none;outline:none;font-family:'Dropline',monospace;
+  font-size:10px;color:var(--text-m);resize:none;line-height:1.6;padding:0;}
+.dbt::placeholder{color:var(--text-d);}
+
+/* Score */
+.scr{display:flex;align-items:center;gap:7px;}
+.sbig{font-family:'Dropline',monospace;font-size:18px;font-weight:700;letter-spacing:.05em;}
+.str{flex:1;height:4px;background:rgba(112,72,248,.1);border-radius:2px;overflow:hidden;}
+.sfi{height:100%;border-radius:2px;}
+
+/* Toggle */
+.tr{display:flex;align-items:center;justify-content:space-between;padding:3px 0;}
+.tl{font-size:11px;color:var(--text-m);}
+.tog{width:32px;height:17px;background:var(--card2);border-radius:9px;border:1px solid var(--border);
+  cursor:pointer;position:relative;transition:all .2s;}
+.tog.on{background:rgba(0,200,150,.15);border-color:var(--mint);}
+.tok{width:11px;height:11px;background:var(--text-d);border-radius:50%;position:absolute;top:2px;left:2px;transition:all .2s;}
+.tog.on .tok{left:17px;background:var(--mint);}
+
+/* Shorts */
+.si{background:rgba(255,59,140,.04);border:1px solid rgba(255,59,140,.1);border-radius:5px;
+  padding:5px 8px;display:flex;align-items:center;gap:6px;}
+[data-theme="light"] .si{background:rgba(255,59,140,.025);}
+.si-n{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;color:var(--berry);text-transform:uppercase;white-space:nowrap;}
+.si-t{font-size:10px;color:var(--text-m);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.si-d{font-family:'Dropline',monospace;font-size:9px;color:var(--text-d);white-space:nowrap;}
+
+/* Thumbnail */
+.thcard{background:var(--card2);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.thprev{height:78px;display:flex;align-items:center;justify-content:center;position:relative;
+  border-bottom:1px solid var(--border);}
+.thov{font-family:'Charger',sans-serif;font-weight:800;font-size:12px;text-transform:uppercase;
+  color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.8);letter-spacing:.5px;text-align:center;
+  padding:0 12px;line-height:1.2;}
+.thf{padding:9px 10px;display:flex;flex-direction:column;gap:6px;}
+.colsw{display:flex;flex-wrap:wrap;gap:4px;}
+.csw{width:26px;height:26px;border-radius:4px;cursor:pointer;transition:border .15s;}
+
+/* Pkg footer */
+.pkf{padding:9px 13px;border-top:1px solid var(--border);display:flex;gap:6px;flex-shrink:0;}
+.pfb{flex:1;font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:8px;border-radius:7px;cursor:pointer;transition:all .2s;
+  text-align:center;border:none;}
+.pf-cp{background:var(--card2);border:1px solid var(--border)!important;color:var(--text-m);}
+.pf-cp:hover{border-color:var(--border-hi)!important;color:var(--text);}
+.pf-lv{background:linear-gradient(135deg,var(--mint),var(--v));color:#fff;}
+.pf-ap{background:linear-gradient(135deg,var(--v),var(--berry));color:#fff;}
+
+/* EDITOR DRAWER */
+.dov{position:fixed;inset:0;background:rgba(7,5,15,.75);backdrop-filter:blur(6px);
+  z-index:200;display:none;align-items:flex-start;justify-content:flex-end;}
+[data-theme="light"] .dov{background:rgba(26,16,64,.55);}
+.dov.open{display:flex;}
+.drawer{width:710px;max-width:96vw;height:100vh;background:var(--panel);
+  border-left:1px solid var(--border-hi);display:flex;flex-direction:column;box-shadow:var(--shadow);}
+.dhead{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.dhl{display:flex;flex-direction:column;gap:2px;}
+.dhtl{font-family:'Charger',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text);}
+.dhsb{font-size:11px;color:var(--text-m);}
+.dbody{flex:1;overflow-y:auto;display:flex;gap:0;}
+.edl{flex:1;padding:15px 17px;border-right:1px solid var(--border);display:flex;flex-direction:column;gap:13px;overflow-y:auto;}
+.edr{width:255px;flex-shrink:0;padding:14px 13px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;}
+.est{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-d);border-bottom:1px solid var(--border);
+  padding-bottom:5px;margin-bottom:5px;}
+.eta{width:100%;background:var(--inp);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'Dropline',monospace;font-size:11px;line-height:1.7;
+  padding:9px 11px;outline:none;transition:border-color .2s;resize:vertical;}
+.eta:focus{border-color:var(--v);}
+.eta::placeholder{color:var(--text-d);}
+.eta.flag{border-color:rgba(255,59,140,.4);background:rgba(255,59,140,.03);}
+.edlbl{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.edlbl-t{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-d);}
+
+/* Compliance in drawer */
+.ci{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:6px;
+  border:1px solid var(--border);background:var(--card2);margin-bottom:4px;transition:all .2s;}
+.ci.fail{border-color:rgba(255,59,140,.3);background:rgba(255,59,140,.04);}
+.ci.pass{border-color:rgba(0,200,150,.2);background:rgba(0,200,150,.03);}
+.ccb{width:16px;height:16px;border-radius:3px;border:1px solid var(--border);flex-shrink:0;
+  cursor:pointer;margin-top:1px;display:flex;align-items:center;justify-content:center;
+  font-size:10px;transition:all .2s;background:transparent;}
+.ci.pass .ccb{background:var(--mint);border-color:var(--mint);color:#000;}
+.ci.fail .ccb{border-color:rgba(255,59,140,.5);}
+.ctx{font-size:11px;line-height:1.4;color:var(--text-m);flex:1;}
+.ci.fail .ctx{color:var(--text);}
+
+/* HT bar */
+.htb{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:10px 11px;}
+.htbt{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.htl{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-d);}
+.htp{font-family:'Dropline',monospace;font-size:16px;font-weight:700;letter-spacing:.05em;}
+.htt{height:5px;background:rgba(112,72,248,.1);border-radius:3px;overflow:hidden;margin-bottom:5px;}
+.htf{height:100%;border-radius:3px;transition:width .4s;}
+.htn{font-size:10px;color:var(--text-d);line-height:1.4;}
+
+/* Note card */
+.nc{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;}
+.ncl{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-d);margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.nta{width:100%;background:transparent;border:none;outline:none;font-family:'Dropline',monospace;font-size:10px;color:var(--text-m);resize:none;line-height:1.6;padding:0;min-height:50px;}
+.nta::placeholder{color:var(--text-d);}
+
+/* Drawer foot */
+.dfoot{padding:11px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.dfb{flex:1;font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.df-can{background:var(--card2);border:1px solid var(--border);color:var(--text-m);}
+.df-ap{background:linear-gradient(135deg,var(--v),var(--berry));border:none;color:#fff;}
+.df-ap:hover{opacity:.9;}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(7,5,15,.85);backdrop-filter:blur(7px);
+  z-index:300;display:none;align-items:center;justify-content:center;}
+[data-theme="light"] .ov{background:rgba(26,16,64,.6);}
+.ov.open{display:flex;}
+.modal{background:var(--panel);border:1px solid var(--border-hi);border-radius:13px;
+  padding:22px;width:390px;max-width:95vw;box-shadow:var(--shadow);}
+.mtl{font-family:'Charger',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:15px;color:var(--text);}
+.mr{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}
+.ml{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-d);}
+.mi{width:100%;background:var(--inp2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'Dropline',monospace;font-size:11px;padding:7px 10px;outline:none;transition:border-color .2s;}
+.mi:focus{border-color:var(--v);}
+.msel{width:100%;background:var(--inp2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'Dropline',monospace;font-size:11px;padding:7px 10px;outline:none;cursor:pointer;}
+.msel option{background:var(--panel);color:var(--text);}
+.ma{display:flex;gap:7px;margin-top:15px;}
+.mb{flex:1;font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.mc2{background:var(--card2);border:1px solid var(--border);color:var(--text-m);}
+.mc2:hover{border-color:var(--border-hi);}
+.mcon{background:var(--v);border:none;color:#fff;}
+.mcon:hover{background:var(--vl);}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="logo"><div class="lm">LX</div>
+    <div class="lt">Lemon<span>berry</span><em>X</em></div></div>
+  <div class="pb">Content Calendar</div>
+  <div class="hr">
+    <button class="th-tog" onclick="toggleTheme()" id="thBtn" title="Toggle theme">☀️</button>
+    <button class="btn" onclick="resetDemo()">Reset</button>
+    <button class="btn btn-p" onclick="openAddModal()">+ Schedule</button>
+  </div>
+</header>
+<div class="buf-bar">
+  <div class="buf-lbl">30-Day Buffer</div>
+  <div class="buf-ch" id="b01"></div><div class="buf-ch" id="b02"></div>
+  <div class="buf-ch" id="b03"></div><div class="buf-ch" id="b04"></div>
+</div>
+<div class="toolbar">
+  <div class="mnav">
+    <button class="nb" onclick="changeMonth(-1)">‹</button>
+    <div class="md" id="mdis">—</div>
+    <button class="nb" onclick="changeMonth(1)">›</button>
+    <button class="tb" onclick="goToday()">Today</button>
+  </div>
+  <div class="sst">
+    <div class="sc"><div class="sd" style="background:var(--mint)"></div>Live:<strong id="stL">0</strong></div>
+    <div class="sc"><div class="sd" style="background:var(--lemon)"></div>Sched:<strong id="stS">0</strong></div>
+    <div class="sc"><div class="sd" style="background:var(--vl)"></div>Appr:<strong id="stA">0</strong></div>
+    <div class="sc"><div class="sd" style="background:var(--berry)"></div>Fail:<strong id="stF">0</strong></div>
+    <div class="sc">Shorts:<strong id="stSh">0</strong></div>
+  </div>
+  <div class="cf">
+    <button class="fp fa" onclick="setF('all',this)">All</button>
+    <button class="fp" onclick="setF('CH-01',this)">CH-01</button>
+    <button class="fp" onclick="setF('CH-02',this)">CH-02</button>
+    <button class="fp" onclick="setF('CH-03',this)">CH-03</button>
+    <button class="fp" onclick="setF('CH-04',this)">CH-04</button>
+  </div>
+</div>
+<div class="cal-layout">
+  <div class="inbox-panel">
+    <div class="inbox-head">
+      <div class="inbox-title">Pending Review</div>
+      <div class="ibadge" id="ic">0</div>
+    </div>
+    <div class="inbox-body" id="ib"></div>
+  </div>
+  <div class="cal-area"><div class="cal-grid" id="cg"></div></div>
+  <div class="pkg-panel" id="pp">
+    <div class="pe"><div class="pe-icon">📦</div>
+      <div class="pe-ttl">Upload Package</div>
+      <div class="pe-sub">Click any video in the calendar to open its SEO upload package</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- EDITOR DRAWER -->
+<div class="dov" id="edo">
+<div class="drawer">
+  <div class="dhead">
+    <div class="dhl">
+      <div class="dhtl">🎨 Human Touch Editor</div>
+      <div class="dhsb" id="edsub">Review · Rewrite · Fix Compliance</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-d" onclick="closeEditor()">✕ Close</button>
+    </div>
+  </div>
+  <div class="dbody">
+    <div class="edl">
+      <div>
+        <div class="edlbl"><div class="est" style="border:none;padding:0;margin:0">Script — Human Rewrite Zone</div>
+          <div style="font-size:9px;color:var(--text-d);font-family:'Dropline',monospace">Words: <span id="wc" style="color:var(--mint)">0</span></div>
+        </div>
+        <textarea class="eta" id="edSc" rows="10"
+          placeholder="Paste the AI script here. Rewrite any lines that sound robotic, generic, or like a Wikipedia summary. Target: 30%+ rewrite.&#10;&#10;Focus on:&#10;• The hook — make it yours&#10;• The reveal moment&#10;• Your Creator Take at the end"
+          oninput="calcHT()"></textarea>
+      </div>
+      <div>
+        <div class="est">Voiceover Direction Notes</div>
+        <textarea class="eta" id="edVo" rows="4"
+          placeholder="ElevenLabs/SSML direction:&#10;• [0:00] DRAMATIC — slow, dark, menacing&#10;• [0:45] WHISPER — this is the conspiracy reveal&#10;• [2:00] ANGRY — heat up here, don't hold back&#10;• [3:30] PAUSE 1.5s — let it land"></textarea>
+      </div>
+      <div>
+        <div class="est">Visual Direction Overrides</div>
+        <textarea class="eta" id="edVis" rows="4"
+          placeholder="Override the auto-generated visual cues:&#10;• [0:00–0:10] HUNYUAN CLIP — heavy vault door, slow dramatic open&#10;• [1:20] WHISK — close-up of gold coins falling&#10;• [3:45] TEXT CARD — '1944. Germany.'&#10;• [8:30] B-ROLL — crowd, aerial city shot"></textarea>
+      </div>
+      <div>
+        <div class="est">Creator Take — Your Original Analysis</div>
+        <textarea class="eta" id="edCT" rows="3"
+          placeholder="Write your unique theory, opinion, or angle here. This is what separates you from every AI-slop channel covering the same story.&#10;&#10;Example: 'Here's what the timeline doesn't add up on, and what I think actually happened...'"></textarea>
+      </div>
+    </div>
+    <div class="edr">
+      <div>
+        <div class="est">Compliance Checklist</div>
+        <div id="ecl"></div>
+      </div>
+      <div class="htb">
+        <div class="htbt"><div class="htl">Human Touch %</div>
+          <div class="htp" id="htp" style="color:var(--berry)">0%</div></div>
+        <div class="htt"><div class="htf" id="htf" style="width:0%;background:var(--berry)"></div></div>
+        <div class="htn" id="htn">Write 30%+ to pass YouTube's authenticity check.</div>
+      </div>
+      <div class="nc">
+        <div class="ncl">📝 Editor Notes</div>
+        <textarea class="nta" id="edNo" rows="4"
+          placeholder="Personal notes:&#10;- Section at 2:30 feels too dry&#10;- Add more emotional weight at the reveal&#10;- Replace B-roll at 4:00"></textarea>
+      </div>
+      <div class="nc">
+        <div class="ncl" style="color:var(--berry)">⚠️ Flagged Issues</div>
+        <div id="fli" style="font-size:10px;color:var(--text-m);line-height:1.5">Complete the checklist above.</div>
+      </div>
+    </div>
+  </div>
+  <div class="dfoot">
+    <button class="dfb df-can" onclick="closeEditor()">Discard</button>
+    <button class="dfb df-ap" onclick="approveFromEditor()">✓ Approve & Move to Schedule</button>
+  </div>
+</div>
+</div>
+
+<!-- SCHEDULE MODAL -->
+<div class="ov" id="sov">
+<div class="modal">
+  <div class="mtl" id="mtl">Schedule Content</div>
+  <div class="mr"><div class="ml">Date</div><input class="mi" type="date" id="mD"></div>
+  <div class="mr"><div class="ml">Upload Time</div><input class="mi" type="time" id="mT" value="14:00"></div>
+  <div class="mr"><div class="ml">Channel</div>
+    <select class="msel" id="mC">
+      <option value="CH-01">CH-01 — Grimm Archives</option>
+      <option value="CH-02">CH-02 — Betrayal &amp; Revenge</option>
+      <option value="CH-03">CH-03 — Jungian Psychology</option>
+      <option value="CH-04">CH-04 — Sleep Soundscapes</option>
+    </select></div>
+  <div class="mr"><div class="ml">Type</div>
+    <select class="msel" id="mTy">
+      <option value="long-form">Long-Form Video</option>
+      <option value="short">YouTube Short</option>
+    </select></div>
+  <div class="mr"><div class="ml">Working Title</div><input class="mi" type="text" id="mTi" placeholder="Video title..."></div>
+  <div class="ma">
+    <button class="mb mc2" onclick="closeMod()">Cancel</button>
+    <button class="mb mcon" onclick="confirmSched()">Schedule →</button>
+  </div>
+</div>
+</div>
+
+<script>
+const CHANNELS={
+  'CH-01':{name:'Grimm Archives',color:'#00D4AA',niche:'history+finance mystery'},
+  'CH-02':{name:'Betrayal & Revenge',color:'#FF3B8C',niche:'betrayal/revenge drama'},
+  'CH-03':{name:'Jungian Psychology',color:'#9B78FF',niche:'psychology/self-help'},
+  'CH-04':{name:'Sleep Soundscapes',color:'#4FC3F7',niche:'sleep/ambient'},
+};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const TCOL={'CH-01':['#0D2B2B','#1A3D1A','#2B1A0D','#1A1440'],'CH-02':['#2B0D1A','#2B1A0D','#1A0D2B','#2B1A1A'],'CH-03':['#1A1040','#0D1A2B','#1A0D2B','#0D2020'],'CH-04':['#0D1A2B','#0D2B2B','#0D0D2B','#1A1A2B']};
+const CI=[
+  {id:'c1',t:'No "Hey guys welcome back" opener',cat:'orig'},
+  {id:'c2',t:'Unique angle — not a single-source summary',cat:'orig'},
+  {id:'c3',t:'Includes original interpretation or Creator Take',cat:'orig'},
+  {id:'c4',t:'Research from 3+ distinct sources synthesized',cat:'orig'},
+  {id:'c5',t:'Hook: Grab (0–5s) + Promise (5–15s) + Stakes (15–30s)',cat:'prod'},
+  {id:'c6',t:'Voiceover has tonal variation — not flat TTS delivery',cat:'prod'},
+  {id:'c7',t:'60%+ motion video clips — not static image slideshow',cat:'prod'},
+  {id:'c8',t:'Structure differs from the last 3 videos published',cat:'prod'},
+  {id:'c9',t:'No recycled visual assets from previous videos',cat:'prod'},
+  {id:'c10',t:'Pattern interrupt every 60–90 seconds in edit',cat:'prod'},
+  {id:'c11',t:'AI disclosure toggled ON in YouTube Studio',cat:'comp'},
+  {id:'c12',t:'Script human-reviewed and rewritten 30%+',cat:'comp'},
+  {id:'c13',t:'No fake news simulation or realistic AI of named people',cat:'comp'},
+];
+const TP={
+  'CH-01':{viral:['hidden history','untold truth','history mystery','shocking discovery','what really happened','history facts','conspiracy revealed','dark history','history exposed','forbidden history'],advertiser:['historical documentary','history channel','educational content','world history','true story documentary','history explained','history documentary 2025','real history','history deep dive','finance history'],niche:['grimm archives','lost treasure','financial scandal','heist story','historical cover up','vault secrets','money mystery','lost fortune','historical conspiracy','wealth secrets']},
+  'CH-02':{viral:['betrayal story','revenge exposed','shocking betrayal','true betrayal','karma story','real revenge','betrayed by family','justice served','karma hits back','betrayal aftermath'],advertiser:['relationship advice','emotional intelligence','true story','drama documentary','real life stories','relationship drama','people stories','life advice','trust issues','emotional stories'],niche:['betrayal revenge','real stories','family drama','toxic relationships','revenge story','emotional story','drama stories','real life drama','shocking stories','trust broken']},
+  'CH-03':{viral:['psychology explained','mind tricks','dark psychology','personality types','mental health truth','why people do this','psychology facts','subconscious mind','behavior explained','mind explained'],advertiser:['mental health awareness','psychology education','self improvement','personal development','therapy explained','emotional wellness','psychology tips','mindset change','behavior science','mental wellness'],niche:['jungian psychology','carl jung','shadow self','archetypes','collective unconscious','individuation','anima animus','persona psychology','jung explained','depth psychology']},
+  'CH-04':{viral:['sleep music','relax instantly','stress relief music','calm music','sleep sounds','anxiety relief','sleep fast','deep sleep music','meditation music','peaceful music'],advertiser:['sleep wellness','meditation content','stress management','relaxation content','sleep health','wellness music','anxiety relief music','mindfulness content','sleep therapy','ambient music'],niche:['sleep soundscapes','rain sounds','white noise','nature sounds','binaural beats','lofi sleep','forest sounds','ocean waves','deep sleep','sleep ambience']},
+};
+
+function bld_comp(score){const pc=Math.round((score/10)*CI.length);const s={};CI.forEach((it,i)=>{s[it.id]=i<pc;});return s;}
+function bld_tags(ch){const p=TP[ch]||TP['CH-01'];return[...p.viral.slice(0,7),...p.advertiser.slice(0,7),...p.niche.slice(0,6)];}
+function addDays(ds,n){const d=new Date(ds);d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+function pad2(n){return String(n).padStart(2,'0');}
+
+function genDemo(){
+  const now=new Date(),yr=now.getFullYear(),mo=now.getMonth(),todN=now.getDate();
+  const t01=['Gardner Museum Heist','Lufthansa Heist','Lost Dutchman Gold','Ronin Network Hack','Yamashita Gold','Copper Scroll Treasure','Charles Ponzi','Nazi Gold Train','Mt Gox Collapse','D.B. Cooper','The Amber Room','El Dorado','Maple Syrup Heist','King John Treasure','QuadrigaCX'];
+  const videos=[];
+  for(let d=1;d<=28;d++){
+    const dow=new Date(yr,mo,d).getDay();
+    if(dow===0)continue;
+    const ds=`${yr}-${pad2(mo+1)}-${pad2(d)}`;
+    const isPast=d<todN,isTod=d===todN;
+    const base=t01[(d-1)%t01.length];
+    const score=7+(d%3);
+    if(dow===1||dow===3||dow===5){
+      const failed=score<8&&!isPast&&!isTod;
+      videos.push({
+        id:`lf-ch01-${d}`,channel:'CH-01',type:'long-form',title:base,
+        scheduledDate:ds,scheduledTime:'14:00',
+        status:failed?'failed':(isPast||isTod)?'live':'scheduled',
+        complianceScore:score,compliance:bld_comp(score),
+        editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},
+        uploadPackage:{
+          titleA:`The ${base}: The Hidden Truth Nobody Talks About`,
+          titleB:`I Found Evidence That Changes The ${base} Story`,
+          titleC:`${base} — $2 Billion Vanished in 72 Hours`,
+          selectedTitle:`The ${base}: The Hidden Truth Nobody Talks About`,
+          descHook:`In 1944, something happened that the world was never meant to know. This is the story of ${base} — and why it's still being covered up today.`,
+          descChapters:`0:00 — The Moment Everything Changed\n1:20 — Background You Were Never Taught\n4:10 — The Evidence\n8:30 — What Really Happened\n13:00 — My Take (Why This Still Matters)\n16:00 — What They Don't Want You to Know`,
+          descKW:`${base} explained | hidden history | finance mystery | lost treasure | historical cover up | Grimm Archives`,
+          descCTA:`🔔 Subscribe for weekly hidden history + finance mysteries nobody else covers.\n▶ Watch next: [RELATED VIDEO LINK]\n\n💬 Drop your theory below — what do YOU think really happened?`,
+          descHT:`#GrimmArchives #HiddenHistory #FinanceMystery #TrueStory #HistoryDocumentary`,
+          tags:bld_tags('CH-01'),
+          thumbBg:(TCOL['CH-01'])[d%4],
+          thumbTxt:base.toUpperCase().substring(0,22),
+          thumbEmo:'Mystery/Shock — dark bg, single light source, wide eyes',
+          thumbSty:'Dark atmospheric — dramatic contrast, golden accent, bold text overlay',
+          thumbFile:`thumb-ch01-${base.toLowerCase().replace(/\s+/g,'-')}.jpg`,
+          playlist:'Grimm Archives — Hidden History Series',
+          endScreen:'Next mystery video + Subscribe',
+          infoCard:'Related mystery video',infoCardTime:'3:45',
+          pinnedComment:`🔍 Watch next: [LINK]\n\n💬 What's YOUR theory? Drop it below 👇\n\n🔔 Subscribe for weekly hidden history mysteries`,
+          aiDisclosure:true,audience:'Not made for kids',
+          shorts:[
+            {num:1,title:`${base} — 60 Sec`,date:ds,time:'10:00'},
+            {num:2,title:`Most Shocking Moment: ${base}`,date:addDays(ds,1),time:'10:00'},
+            {num:3,title:`${base} Secret Nobody Knew`,date:addDays(ds,3),time:'10:00'},
+          ],
+        }
+      });
+    }
+    if((dow===2||dow===4)&&d<=20){
+      videos.push({
+        id:`sh-ch01-${d}`,channel:'CH-01',type:'short',title:`${base} — 60 Sec`,
+        scheduledDate:ds,scheduledTime:'10:00',
+        status:(isPast||isTod)?'live':'scheduled',
+        complianceScore:9,compliance:bld_comp(9),
+        editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},uploadPackage:null,
+      });
+    }
+  }
+  const n=new Date();
+  [[18,'The Betrayal That Ended Everything'],[25,'When Trust Becomes the Weapon']].forEach(([d,ttl])=>{
+    const ds=`${n.getFullYear()}-${pad2(n.getMonth()+1)}-${pad2(d)}`;
+    videos.push({id:`lf-ch02-${d}`,channel:'CH-02',type:'long-form',title:ttl,scheduledDate:ds,scheduledTime:'15:00',status:'scheduled',complianceScore:8,compliance:bld_comp(8),editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},uploadPackage:null});
+  });
+  return videos;
+}
+
+const DP=[
+  {id:'p-001',channel:'CH-01',type:'long-form',title:'The Forgotten Empire of Gold',complianceScore:9,failed:false},
+  {id:'p-002',channel:'CH-01',type:'short',title:'Yamashita Gold — 60 Sec',complianceScore:9,failed:false},
+  {id:'p-003',channel:'CH-02',type:'long-form',title:'Exposed After 20 Years',complianceScore:6,failed:true},
+  {id:'p-004',channel:'CH-01',type:'long-form',title:"Vatican's Hidden Vault",complianceScore:10,failed:false},
+  {id:'p-005',channel:'CH-03',type:'long-form',title:'The Shadow Self Explained',complianceScore:5,failed:true},
+  {id:'p-006',channel:'CH-04',type:'long-form',title:'Deep Forest Rain — 8hr',complianceScore:9,failed:false},
+];
+
+let vd=[],pd=[],curDate=new Date(),curF='all',selId=null,pkgTab='pkg',edVid=null,edOrig='',schedItem=null;
+const SK='lbx:c4v:vids',PK='lbx:c4v:pend';
+
+function loadData(){
+  const sv=localStorage.getItem(SK),sp=localStorage.getItem(PK);
+  vd=sv?JSON.parse(sv):genDemo();
+  pd=sp?JSON.parse(sp):[...DP];
+  if(!sv)saveData();
+}
+function saveData(){
+  localStorage.setItem(SK,JSON.stringify(vd));
+  localStorage.setItem(PK,JSON.stringify(pd));
+}
+function resetDemo(){
+  localStorage.removeItem(SK);localStorage.removeItem(PK);
+  curDate=new Date();curF='all';selId=null;loadData();render();
+}
+
+/* THEME */
+function toggleTheme(){
+  const h=document.documentElement,isDark=h.getAttribute('data-theme')==='dark';
+  const next=isDark?'light':'dark';
+  h.setAttribute('data-theme',next);
+  document.getElementById('thBtn').textContent=isDark?'🌙':'☀️';
+  applyThemeVars(next);
+  localStorage.setItem('lbx:theme',next);
+}
+function applyThemeVars(t){
+  const r=document.documentElement;
+  if(t==='light'){r.style.setProperty('--ch01','#009E80');r.style.setProperty('--mint','#009E80');r.style.setProperty('--lemon','#8A9000');}
+  else{r.style.removeProperty('--ch01');r.style.removeProperty('--mint');r.style.removeProperty('--lemon');}
+}
+function loadTheme(){
+  const t=localStorage.getItem('lbx:theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('thBtn').textContent=t==='dark'?'☀️':'🌙';
+  applyThemeVars(t);
+}
+
+/* RENDER */
+function render(){renderHdr();renderBuf();renderCal();renderInbox();renderStats();if(selId)renderPkg(selId);}
+
+function renderHdr(){document.getElementById('mdis').textContent=`${MONTHS[curDate.getMonth()]} ${curDate.getFullYear()}`;}
+
+function renderBuf(){
+  ['CH-01','CH-02','CH-03','CH-04'].forEach((ch,i)=>{
+    const inf=CHANNELS[ch];
+    const cnt=vd.filter(v=>v.channel===ch&&v.type==='long-form'&&['scheduled','approved','live'].includes(v.status)).length;
+    const pct=Math.min((cnt/30)*100,100);
+    const el=document.getElementById(`b0${i+1}`);
+    el.style.borderColor=cnt<10?'rgba(255,59,140,.35)':'';
+    el.innerHTML=`<div class="buf-id" style="color:${inf.color}">${ch.replace('-0','-')}</div>
+      <div class="buf-nm">${inf.name}</div>
+      <div class="buf-tr"><div class="buf-fi" style="width:${pct}%;background:${inf.color}"></div></div>
+      <div class="buf-ct">${cnt}<span>/30</span></div>`;
+  });
+}
+
+function renderStats(){
+  const ms=`${curDate.getFullYear()}-${pad2(curDate.getMonth()+1)}`;
+  const mv=vd.filter(v=>v.scheduledDate.startsWith(ms));
+  document.getElementById('stL').textContent=mv.filter(v=>v.status==='live').length;
+  document.getElementById('stS').textContent=mv.filter(v=>v.status==='scheduled').length;
+  document.getElementById('stA').textContent=mv.filter(v=>v.status==='approved').length;
+  document.getElementById('stF').textContent=mv.filter(v=>v.status==='failed').length;
+  document.getElementById('stSh').textContent=mv.filter(v=>v.type==='short').length;
+}
+
+function renderCal(){
+  const g=document.getElementById('cg'),yr=curDate.getFullYear(),mo=curDate.getMonth();
+  const today=new Date(),ms=`${yr}-${pad2(mo+1)}`;
+  const mv=vd.filter(v=>v.scheduledDate.startsWith(ms)&&(curF==='all'||v.channel===curF));
+  const by={};mv.forEach(v=>{by[v.scheduledDate]=by[v.scheduledDate]||[];by[v.scheduledDate].push(v);});
+  const fd=new Date(yr,mo,1).getDay(),dim=new Date(yr,mo+1,0).getDate();
+  let h='';
+  DAYS.forEach(d=>h+=`<div class="dh">${d}</div>`);
+  for(let i=0;i<fd;i++)h+=`<div class="cc empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${yr}-${pad2(mo+1)}-${pad2(d)}`;
+    const dvs=by[ds]||[],isTod=new Date(yr,mo,d).toDateString()===today.toDateString();
+    h+=`<div class="cc${isTod?' today':''}"><span class="dn">${d}</span>`;
+    dvs.slice(0,3).forEach(v=>{
+      const ch=CHANNELS[v.channel],isFail=v.status==='failed',isSel=selId===v.id;
+      h+=`<div class="vc ${v.type==='long-form'?'lfc':'shc'}${isSel?' vsel':''}${isFail?' failc':''}"
+        onclick="selVid('${v.id}')" title="${v.title}">
+        <div class="cdot" style="background:${ch.color}"></div>
+        <div class="cttl">${v.title}</div>
+        <div class="cstat s-${v.status}"></div></div>`;
+    });
+    if(dvs.length>3)h+=`<div class="mc">+${dvs.length-3}</div>`;
+    h+=`</div>`;
+  }
+  const rem=(fd+dim)%7;if(rem)for(let i=0;i<7-rem;i++)h+=`<div class="cc empty"></div>`;
+  g.innerHTML=h;
+}
+
+function renderInbox(){
+  const b=document.getElementById('ib');
+  document.getElementById('ic').textContent=pd.length;
+  if(!pd.length){b.innerHTML=`<div class="ie"><div class="ie-icon">✅</div><div class="ie-txt">Queue clear</div></div>`;return;}
+  b.innerHTML=pd.map(it=>{
+    const ch=CHANNELS[it.channel],fail=it.failed||it.complianceScore<7;
+    return`<div class="ii"><div class="ii-bar" style="background:${ch.color};border-radius:9px 0 0 9px"></div>
+      <div class="ii-ch" style="color:${ch.color}">${it.channel} — ${ch.name}</div>
+      <div class="ii-ttl">${it.title}</div>
+      <div class="ii-meta">
+        <span class="tbadge ${it.type==='long-form'?'lf-b':'sh-b'}">${it.type==='long-form'?'▶ Long-Form':'⚡ Short'}</span>
+        <span class="ii-score ${fail?'fs':'ps'}">${it.complianceScore}/10${fail?' ⚠️':' ✓'}</span>
+      </div>
+      <div class="ii-btns">
+        ${fail?`<button class="iib iib-e" onclick="openEdFromPend('${it.id}')">✏️ Fix</button>`
+               :`<button class="iib iib-s" onclick="openSchedMod('${it.id}')">Schedule →</button>`}
+        <button class="iib" onclick="buildPkg('${it.id}')">Build Pkg</button>
+      </div></div>`;  }).join('');
+}
+
+/* PKG PANEL */
+function selVid(id){selId=id;renderCal();renderPkg(id);}
+function closePanel(){
+  selId=null;renderCal();
+  document.getElementById('pp').innerHTML=`<div class="pe"><div class="pe-icon">📦</div>
+    <div class="pe-ttl">Upload Package</div>
+    <div class="pe-sub">Click any video in the calendar to open its SEO upload package</div></div>`;
+}
+
+function renderPkg(vid){
+  const panel=document.getElementById('pp'),v=vd.find(x=>x.id===vid);
+  if(!v)return;
+  const ch=CHANNELS[v.channel],sc=v.complianceScore;
+  const sc_col=sc>=9?'var(--mint)':sc>=7?'var(--lemon)':'var(--berry)';
+  const pkg=v.uploadPackage;
+
+  panel.innerHTML=`
+    <div class="ph">
+      <div class="ph-info">
+        <div class="ph-ch" style="color:${ch.color}">${v.channel} · ${v.type==='long-form'?'▶ Long-Form':'⚡ Short'}</div>
+        <div class="ph-ttl">${v.title}</div>
+      </div>
+      <button class="pcl" onclick="closePanel()">✕</button>
+    </div>
+    <div class="pt">
+      <button class="ptb ${pkgTab==='pkg'?'act':''}" onclick="swTab('pkg',this)">📦 Package</button>
+      <button class="ptb ${pkgTab==='meta'?'act':''}" onclick="swTab('meta',this)">⚙️ Meta</button>
+      <button class="ptb ${pkgTab==='thumb'?'act':''}" onclick="swTab('thumb',this)">🖼️ Thumb</button>
+    </div>
+    <div class="pb-body">
+      <!-- Status + Score -->
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+        <select class="pi" style="width:auto;flex:1" onchange="uf('${v.id}','status',this.value)">
+          ${['pending','failed','approved','scheduled','live'].map(s=>`<option ${v.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+          <div class="sbig" style="color:${sc_col};font-size:15px">${sc}</div>
+          <div style="font-size:9px;color:var(--text-d)">/10</div>
+          <div class="str" style="width:55px"><div class="sfi" style="width:${sc*10}%;background:${sc_col}"></div></div>
+        </div>
+        ${v.status==='failed'?`<button class="btn btn-d" style="padding:4px 8px;font-size:9px" onclick="openEditor('${v.id}')">✏️ Edit</button>`:''}
+      </div>
+      <div class="pr2" style="margin-bottom:8px">
+        <div><div class="pl" style="margin-bottom:3px">Date</div>
+          <input class="pi" type="date" value="${v.scheduledDate}" onchange="uf('${v.id}','scheduledDate',this.value)"></div>
+        <div><div class="pl" style="margin-bottom:3px">Time</div>
+          <input class="pi" type="time" value="${v.scheduledTime}" onchange="uf('${v.id}','scheduledTime',this.value)"></div>
+      </div>
+      ${renderPkgPanes(v)}
+    </div>
+    <div class="pkf">
+      ${pkg?`<button class="pfb pf-cp" onclick="cpyPkg('${v.id}')">📋 Copy All</button>`:''}
+      <button class="pfb" style="background:rgba(232,244,0,.08);border:1px solid rgba(232,244,0,.25)!important;color:var(--lemon);font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border-radius:7px;padding:8px" onclick="openViralityCheck('${v.id}');document.getElementById('vc-vid-title').textContent='${v.title.replace(/'/g,"\\'")}'">${v.viralityCheck ? `🔥 ${v.viralityCheck.score}% — Recheck` : '🔥 Virality Check'}</button>
+      ${pkg&&v.status!=='live'?`<button class="pfb pf-ap" onclick="mrkAp('${v.id}')">✓ Approve</button>`:''}
+      ${v.status==='live'?`<button class="pfb pf-lv" style="cursor:default">✓ Live</button>`:''}
+    </div>`;
+
+  document.querySelectorAll('.pp').forEach(p=>p.classList.remove('act'));
+  const ap=document.getElementById('pane-'+pkgTab);if(ap)ap.classList.add('act');
+}
+
+function renderPkgPanes(v){
+  const pkg=v.uploadPackage;
+  if(!pkg)return`
+    <div style="text-align:center;padding:20px 10px">
+      <div style="font-size:22px;margin-bottom:8px">📝</div>
+      <div style="font-family:'Charger',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-m);margin-bottom:6px">No Upload Package</div>
+      <div style="font-size:10px;line-height:1.5;color:var(--text-d);margin-bottom:12px">Build the SEO upload package for this video.</div>
+      <button onclick="initPkg('${v.id}')" style="background:var(--v);border:none;color:#fff;padding:8px 16px;border-radius:7px;cursor:pointer;font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Build Package</button>
+    </div>`;
+
+  return`
+  <!-- PACKAGE PANE -->
+  <div class="pp ${pkgTab==='pkg'?'act':''}" id="pane-pkg">
+    <div class="ps2">
+      <div class="pl">SEO Titles — Select One for Upload <span class="pl-r">★</span></div>
+      ${[['A','titleA','tc','Curiosity','SEO ts'],['B','titleB','tf','Fear · Loss',''],['C','titleC','tn','Number · Result','']].map(([ltr,key,cls,lbl,extra])=>`
+      <div class="stc">
+        <div class="stc-lbl"><span style="color:${ltr==='A'?'var(--vl)':ltr==='B'?'var(--berry)':'var(--mint)'}">${ltr}</span>
+          <span class="stag ${cls}">${lbl}</span>${extra?`<span class="stag ts">${extra}</span>`:''}</div>
+        <button class="stc-pick ${pkg.selectedTitle===pkg[key]?'chosen':''}" onclick="pickT('${v.id}','${key}')">✓</button>
+        <textarea class="pi" rows="2" style="background:transparent;border:none;padding:0;font-size:11px;color:var(--text)"
+          onchange="up('${v.id}','${key}',this.value)">${esc(pkg[key])}</textarea>
+        <div class="stc-len">${(pkg[key]||'').length}/100 chars</div>
+      </div>`).join('')}
+    </div>
+    <div class="ps2">
+      <div class="pl">Final Upload Title</div>
+      <input class="pi" value="${esc(pkg.selectedTitle)}" placeholder="Selected title for YouTube Studio"
+        onchange="up('${v.id}','selectedTitle',this.value)" style="font-weight:700">
+    </div>
+    <div class="div"></div>
+    <div class="ps2">
+      <div class="pl">SEO Description — Advertiser-Friendly <span class="pl-r">★</span></div>
+      <div class="db"><div class="dbl">🎯 Hook (First 2 lines shown in search)</div>
+        <textarea class="dbt" rows="2" onchange="up('${v.id}','descHook',this.value)">${esc(pkg.descHook||'')}</textarea></div>
+      <div class="db"><div class="dbl">📋 Chapters (Boosts AVD + SEO)</div>
+        <textarea class="dbt" rows="5" onchange="up('${v.id}','descChapters',this.value)">${esc(pkg.descChapters||'')}</textarea></div>
+      <div class="db"><div class="dbl">🔑 Keyword Paragraph (Natural — no stuffing)</div>
+        <textarea class="dbt" rows="2" onchange="up('${v.id}','descKW',this.value)">${esc(pkg.descKW||'')}</textarea></div>
+      <div class="db"><div class="dbl">📣 CTA Block (Subscribe + Next + Engagement)</div>
+        <textarea class="dbt" rows="3" onchange="up('${v.id}','descCTA',this.value)">${esc(pkg.descCTA||'')}</textarea></div>
+      <div class="db"><div class="dbl">#️⃣ Hashtags (3–5 advertiser-friendly)</div>
+        <textarea class="dbt" rows="2" onchange="up('${v.id}','descHT',this.value)">${esc(pkg.descHT||'')}</textarea></div>
+    </div>
+  </div>
+
+  <!-- META PANE -->
+  <div class="pp ${pkgTab==='meta'?'act':''}" id="pane-meta">
+    <div class="ps2">
+      <div class="pl">Tags — 20 Tags (Viral + Advertiser + Niche)
+        <span style="color:var(--text-d);font-size:9px;font-weight:400;text-transform:none;letter-spacing:0">${(pkg.tags||[]).length}/20</span>
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">
+        <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,59,140,.08);border:1px solid rgba(255,59,140,.2);color:var(--berry)">● Viral</span>
+        <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);color:var(--mint)">● Advertiser</span>
+        <span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(112,72,248,.08);border:1px solid rgba(112,72,248,.18);color:var(--vl)">● Niche</span>
+      </div>
+      <div class="tags-area">
+        ${(pkg.tags||[]).map((t,i)=>`<span class="tp ${i<7?'tp-v':i<14?'tp-a':''}">#${esc(t)}<span class="tx" onclick="rmTag('${v.id}',${i})">✕</span></span>`).join('')}
+      </div>
+      <div class="tir">
+        <select class="tsel" id="ttype-${v.id}">
+          <option value="viral">Viral</option><option value="advertiser">Advertiser</option><option value="niche">Niche</option>
+        </select>
+        <input class="pi" style="flex:1" placeholder="Add tag + Enter..."
+          onkeydown="addTag(event,'${v.id}',this)">
+        <button class="btn btn-mint" style="padding:4px 8px;font-size:9px" onclick="autoFill('${v.id}')">Auto</button>
+      </div>
+    </div>
+    <div class="div"></div>
+    <div class="ps2"><div class="pl">Playlist</div>
+      <input class="pi" value="${esc(pkg.playlist||'')}" placeholder="Series name..." onchange="up('${v.id}','playlist',this.value)"></div>
+    <div class="ps2"><div class="pl">End Screen (Last 20s)</div>
+      <input class="pi" value="${esc(pkg.endScreen||'')}" placeholder="Next video + Subscribe" onchange="up('${v.id}','endScreen',this.value)"></div>
+    <div class="pr2">
+      <div class="ps2"><div class="pl">Info Card</div>
+        <input class="pi" value="${esc(pkg.infoCard||'')}" placeholder="Related video" onchange="up('${v.id}','infoCard',this.value)"></div>
+      <div class="ps2"><div class="pl">Timestamp</div>
+        <input class="pi" value="${esc(pkg.infoCardTime||'')}" placeholder="3:45" onchange="up('${v.id}','infoCardTime',this.value)"></div>
+    </div>
+    <div class="ps2"><div class="pl">Pinned Comment <span class="pl-r">★</span></div>
+      <textarea class="pi" rows="3" placeholder="Watch next: [link] — CTA..." onchange="up('${v.id}','pinnedComment',this.value)">${esc(pkg.pinnedComment||'')}</textarea></div>
+    <div class="div"></div>
+    <div class="tr"><div class="tl">AI Disclosure (Required)</div>
+      <div class="tog ${pkg.aiDisclosure?'on':''}" onclick="togAI('${v.id}')"><div class="tok"></div></div></div>
+    <div class="div"></div>
+    <div class="ps2"><div class="pl">🎬 Linked Shorts (${(pkg.shorts||[]).length})</div>
+      ${(pkg.shorts||[]).map(s=>`<div class="si"><div class="si-n">S${s.num}</div>
+        <div class="si-t">${s.title}</div><div class="si-d">${s.date} ${s.time}</div></div>`).join('')}
+    </div>
+  </div>
+
+  <!-- THUMB PANE -->
+  <div class="pp ${pkgTab==='thumb'?'act':''}" id="pane-thumb">
+    <div class="thcard">
+      <div class="thprev" style="background:${pkg.thumbBg||'#1A1040'}">
+        <div style="text-align:center">
+          <div style="font-size:9px;color:rgba(255,255,255,.4);font-family:'Dropline',monospace;margin-bottom:4px">${v.channel} · 1280×720</div>
+          <div class="thov">${(pkg.thumbTxt||v.title).substring(0,28)}</div>
+        </div>
+      </div>
+      <div class="thf">
+        <div class="ps2"><div class="pl">Text Overlay (3–5 words MAX) <span class="pl-r">★</span></div>
+          <input class="pi" value="${esc(pkg.thumbTxt||'')}" placeholder="Bold claim — short and punchy"
+            onchange="up('${v.id}','thumbTxt',this.value)"></div>
+        <div class="ps2"><div class="pl">Background Tone</div>
+          <div class="colsw">
+            ${(TCOL[v.channel]||TCOL['CH-01']).map(c=>`<div onclick="up('${v.id}','thumbBg','${c}');renderPkg('${v.id}')"
+              style="width:26px;height:26px;border-radius:4px;background:${c};cursor:pointer;border:2px solid ${pkg.thumbBg===c?'var(--vl)':'transparent'}"></div>`).join('')}
+          </div></div>
+        <div class="ps2"><div class="pl">Emotion / Face Direction</div>
+          <input class="pi" value="${esc(pkg.thumbEmo||'')}" placeholder="e.g. Shock — dark bg, wide eyes, single light"
+            onchange="up('${v.id}','thumbEmo',this.value)"></div>
+        <div class="ps2"><div class="pl">Design Style Notes</div>
+          <textarea class="pi" rows="2" placeholder="Color scheme, typography, visual hierarchy..."
+            onchange="up('${v.id}','thumbSty',this.value)">${esc(pkg.thumbSty||'')}</textarea></div>
+        <div class="ps2"><div class="pl">Filename</div>
+          <input class="pi" value="${esc(pkg.thumbFile||'')}" placeholder="thumb-ch01-video-title.jpg"
+            onchange="up('${v.id}','thumbFile',this.value)"></div>
+        <div style="padding:7px;background:rgba(112,72,248,.06);border:1px solid rgba(112,72,248,.14);border-radius:5px;font-size:9px;color:var(--text-m);line-height:1.5">
+          📐 1280×720 · 16:9 · Under 2MB · High contrast · 3–5 word overlay · Bold colors grab CTR
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function swTab(tab,el){
+  pkgTab=tab;
+  document.querySelectorAll('.ptb').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.pp').forEach(p=>p.classList.remove('act'));
+  const pane=document.getElementById('pane-'+tab);if(pane)pane.classList.add('act');
+}
+
+function pickT(id,key){
+  const v=vd.find(x=>x.id===id);if(!v||!v.uploadPackage)return;
+  v.uploadPackage.selectedTitle=v.uploadPackage[key];
+  saveData();renderPkg(id);
+}
+
+/* EDITOR */
+function openEditor(vid){
+  const v=vd.find(x=>x.id===vid);if(!v)return;
+  edVid=vid;
+  document.getElementById('edsub').textContent=`${v.channel} — ${v.title}`;
+  const ed=v.editorData||{script:'',voice:'',visual:'',ct:'',notes:'',ht:0};
+  document.getElementById('edSc').value=ed.script||'';
+  edOrig=ed.script||'';
+  document.getElementById('edVo').value=ed.voice||'';
+  document.getElementById('edVis').value=ed.visual||'';
+  document.getElementById('edCT').value=ed.ct||'';
+  document.getElementById('edNo').value=ed.notes||'';
+  buildEdCL(v);calcHT();
+  document.getElementById('edo').classList.add('open');
+}
+
+function openEdFromPend(pid){
+  const item=pd.find(p=>p.id===pid);if(!item)return;
+  const ds=new Date().toISOString().split('T')[0];
+  const nv={id:`draft-${Date.now()}`,channel:item.channel,type:item.type,title:item.title,
+    scheduledDate:ds,scheduledTime:'14:00',status:'failed',
+    complianceScore:item.complianceScore,compliance:bld_comp(item.complianceScore),
+    editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},uploadPackage:null};
+  vd.push(nv);pd=pd.filter(p=>p.id!==pid);
+  saveData();render();openEditor(nv.id);
+}
+
+function buildEdCL(v){
+  const comp=v.compliance||bld_comp(v.complianceScore);
+  const flagged=[];
+  document.getElementById('ecl').innerHTML=CI.map(it=>{
+    const pass=comp[it.id];
+    if(!pass)flagged.push(it.t);
+    return`<div class="ci ${pass?'pass':'fail'}" id="ci-${it.id}">
+      <div class="ccb" onclick="togCI('${v.id}','${it.id}')">${pass?'✓':''}</div>
+      <div class="ctx">${it.t}</div></div>`;
+  }).join('');
+  document.getElementById('fli').innerHTML=flagged.length
+    ?flagged.map(f=>`<div style="margin-bottom:3px;color:var(--berry)">• ${f}</div>`).join('')
+    :'<span style="color:var(--mint)">All items passing ✓</span>';
+}
+
+function togCI(vid,cid){
+  const v=vd.find(x=>x.id===vid);if(!v)return;
+  if(!v.compliance)v.compliance=bld_comp(v.complianceScore);
+  v.compliance[cid]=!v.compliance[cid];
+  const pc=Object.values(v.compliance).filter(Boolean).length;
+  v.complianceScore=Math.round((pc/CI.length)*10);
+  saveData();buildEdCL(v);renderStats();
+}
+
+function calcHT(){
+  const curr=document.getElementById('edSc').value.split(/\s+/).filter(Boolean);
+  document.getElementById('wc').textContent=curr.length;
+  const pct=curr.length>80?Math.min(85,30+curr.length):curr.length>40?20:curr.length>10?10:0;
+  document.getElementById('htp').textContent=`${pct}%`;
+  document.getElementById('htf').style.width=`${pct}%`;
+  const htf=document.getElementById('htf'),htp=document.getElementById('htp'),htn=document.getElementById('htn');
+  if(pct>=30){htf.style.background='var(--mint)';htp.style.color='var(--mint)';htn.textContent='✓ Passing YouTube authenticity check.';}
+  else if(pct>=15){htf.style.background='var(--lemon)';htp.style.color='var(--lemon)';htn.textContent='Getting there — aim for 30%+ rewrite.';}
+  else{htf.style.background='var(--berry)';htp.style.color='var(--berry)';htn.textContent='Rewrite 30%+ of the script to pass.';}
+}
+
+function approveFromEditor(){
+  const v=vd.find(x=>x.id===edVid);if(!v)return;
+  v.editorData={script:document.getElementById('edSc').value,voice:document.getElementById('edVo').value,
+    visual:document.getElementById('edVis').value,ct:document.getElementById('edCT').value,
+    notes:document.getElementById('edNo').value,ht:parseInt(document.getElementById('htp').textContent)||0};
+  v.status='approved';saveData();closeEditor();render();
+  if(selId===edVid)renderPkg(edVid);
+}
+function closeEditor(){document.getElementById('edo').classList.remove('open');edVid=null;}
+
+/* PKG ACTIONS */
+function uf(id,field,val){const v=vd.find(x=>x.id===id);if(v){v[field]=val;saveData();renderBuf();renderStats();}}
+function up(id,field,val){const v=vd.find(x=>x.id===id);if(v&&v.uploadPackage){v.uploadPackage[field]=val;saveData();}}
+
+function initPkg(vid){
+  const v=vd.find(x=>x.id===vid);if(!v)return;
+  const ch=v.channel,p=TP[ch]||TP['CH-01'],ttl=v.title;
+  v.uploadPackage={
+    titleA:`The ${ttl}: The Hidden Truth Nobody Talks About`,
+    titleB:`I Found Evidence That Changes The ${ttl} Story`,
+    titleC:`${ttl} — $2 Billion Vanished in 72 Hours`,
+    selectedTitle:`The ${ttl}: The Hidden Truth Nobody Talks About`,
+    descHook:`In 1944, something happened the world was never meant to know. This is the story of ${ttl}.`,
+    descChapters:`0:00 — The Moment Everything Changed\n1:20 — Background\n4:10 — The Evidence\n8:30 — What Really Happened\n13:00 — Creator Take\n16:00 — Wrap`,
+    descKW:`${ttl} explained | hidden history | finance mystery`,
+    descCTA:`🔔 Subscribe for weekly hidden history mysteries.\n▶ Watch next: [RELATED VIDEO]\n\n💬 Drop your theory below 👇`,
+    descHT:`#HiddenHistory #FinanceMystery #TrueStory #HistoryDocumentary`,
+    tags:[...p.viral,...p.advertiser,...p.niche].slice(0,20),
+    thumbBg:(TCOL[ch]||TCOL['CH-01'])[0],
+    thumbTxt:ttl.toUpperCase().substring(0,22),
+    thumbEmo:'Mystery/Shock — dark background, single light, wide eyes',
+    thumbSty:'Dark atmospheric — dramatic contrast, bold text overlay, golden accent',
+    thumbFile:`thumb-${ch.toLowerCase().replace('-0','-')}-${ttl.toLowerCase().replace(/\s+/g,'-').substring(0,28)}.jpg`,
+    playlist:`${CHANNELS[ch].name} — Series`,endScreen:'Next video + Subscribe',
+    infoCard:'Related video',infoCardTime:'3:45',
+    pinnedComment:`▶ Watch next: [LINK]\n\n💬 Drop your theory 👇\n\n🔔 Subscribe for weekly content`,
+    aiDisclosure:true,audience:'Not made for kids',shorts:[],
+  };
+  saveData();renderPkg(vid);
+}
+
+function buildPkg(pid){
+  const item=pd.find(p=>p.id===pid);if(!item)return;
+  const ds=new Date().toISOString().split('T')[0];
+  const nv={id:`v-${Date.now()}`,channel:item.channel,type:item.type,title:item.title,
+    scheduledDate:ds,scheduledTime:'14:00',status:'approved',
+    complianceScore:item.complianceScore,compliance:bld_comp(item.complianceScore),
+    editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},uploadPackage:null};
+  vd.push(nv);pd=pd.filter(p=>p.id!==pid);
+  saveData();selId=nv.id;pkgTab='pkg';render();initPkg(nv.id);renderPkg(nv.id);
+}
+
+function addTag(e,id,inp){
+  if(e.key!=='Enter')return;
+  const tag=inp.value.trim().replace(/^#/,'');if(!tag)return;
+  const v=vd.find(x=>x.id===id);
+  if(v&&v.uploadPackage){
+    if(!v.uploadPackage.tags)v.uploadPackage.tags=[];
+    v.uploadPackage.tags.push(tag);
+    saveData();pkgTab='meta';renderPkg(id);inp.value='';
+  }
+}
+
+function rmTag(id,idx){
+  const v=vd.find(x=>x.id===id);
+  if(v&&v.uploadPackage){v.uploadPackage.tags.splice(idx,1);saveData();pkgTab='meta';renderPkg(id);}
+}
+
+function autoFill(id){
+  const v=vd.find(x=>x.id===id);if(!v||!v.uploadPackage)return;
+  const p=TP[v.channel]||TP['CH-01'];
+  v.uploadPackage.tags=[...p.viral,...p.advertiser,...p.niche].slice(0,20);
+  saveData();pkgTab='meta';renderPkg(id);
+}
+
+function togAI(id){
+  const v=vd.find(x=>x.id===id);
+  if(v&&v.uploadPackage){v.uploadPackage.aiDisclosure=!v.uploadPackage.aiDisclosure;saveData();pkgTab='meta';renderPkg(id);}
+}
+
+function mrkAp(id){const v=vd.find(x=>x.id===id);if(v){v.status='approved';saveData();render();renderPkg(id);}}
+
+/* COPY */
+function cpyPkg(id){
+  const v=vd.find(x=>x.id===id);if(!v||!v.uploadPackage)return;
+  const pkg=v.uploadPackage;
+  const fd=`${pkg.descHook}\n\n${pkg.descChapters}\n\n${pkg.descKW}\n\n${pkg.descCTA}\n\n${pkg.descHT}`;
+  const txt=`
+╔════════════════════════════════════════════════
+  LEMONBERRYX — UPLOAD PACKAGE
+  ${v.channel} · ${CHANNELS[v.channel]?.name}
+  ${v.scheduledDate} @ ${v.scheduledTime}
+╚════════════════════════════════════════════════
+
+📌 VIDEO: ${v.title}
+   Type: ${v.type==='long-form'?'Long-Form':'YouTube Short'}
+   Compliance: ${v.complianceScore}/10
+
+─── SELECTED UPLOAD TITLE ──────────────────────
+${pkg.selectedTitle}
+
+─── A/B TITLE VARIANTS ─────────────────────────
+A [Curiosity+SEO]:    ${pkg.titleA}
+B [Fear/Loss]:        ${pkg.titleB}
+C [Number/Result]:    ${pkg.titleC}
+
+─── FULL DESCRIPTION ───────────────────────────
+${fd}
+
+─── TAGS (${(pkg.tags||[]).length} tags) ─────────────────────────────
+${(pkg.tags||[]).join(', ')}
+
+─── THUMBNAIL ──────────────────────────────────
+File:    ${pkg.thumbFile}
+Text:    ${pkg.thumbTxt}
+Style:   ${pkg.thumbSty}
+Emotion: ${pkg.thumbEmo}
+BG:      ${pkg.thumbBg}
+Specs:   1280×720 · 16:9 · Under 2MB
+
+─── UPLOAD SETTINGS ────────────────────────────
+Playlist:      ${pkg.playlist}
+End Screen:    ${pkg.endScreen}
+Info Card:     ${pkg.infoCard} @ ${pkg.infoCardTime}
+AI Disclosure: ${pkg.aiDisclosure?'ON ✅ (Required)':'OFF ❌ RISK'}
+Audience:      ${pkg.audience}
+
+─── PINNED COMMENT ─────────────────────────────
+${pkg.pinnedComment}
+
+─── LINKED SHORTS ──────────────────────────────
+${(pkg.shorts||[]).map(s=>`S${s.num}: ${s.title}  ›  ${s.date} @ ${s.time}`).join('\n')||'None'}
+`.trim();
+  navigator.clipboard.writeText(txt).then(()=>{
+    document.querySelectorAll('.pf-cp').forEach(b=>{const o=b.textContent;b.textContent='✅ Copied!';setTimeout(()=>b.textContent=o,2000);});
+  });
+}
+
+/* MODAL */
+function openAddModal(){
+  schedItem=null;
+  document.getElementById('mtl').textContent='Schedule New Content';
+  document.getElementById('mTi').value='';
+  document.getElementById('mD').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sov').classList.add('open');
+}
+function openSchedMod(pid){
+  const it=pd.find(p=>p.id===pid);if(!it)return;
+  schedItem=it;
+  document.getElementById('mtl').textContent=`Schedule: ${it.title}`;
+  document.getElementById('mTi').value=it.title;
+  document.getElementById('mC').value=it.channel;
+  document.getElementById('mTy').value=it.type;
+  document.getElementById('mD').value=new Date().toISOString().split('T')[0];
+  document.getElementById('sov').classList.add('open');
+}
+function closeMod(){document.getElementById('sov').classList.remove('open');schedItem=null;}
+function confirmSched(){
+  const date=document.getElementById('mD').value,time=document.getElementById('mT').value;
+  const ch=document.getElementById('mC').value,type=document.getElementById('mTy').value;
+  const ttl=document.getElementById('mTi').value.trim();
+  if(!date||!ttl)return;
+  vd.push({id:`v-${Date.now()}`,channel:ch,type,title:ttl,scheduledDate:date,scheduledTime:time,
+    status:'scheduled',complianceScore:schedItem?schedItem.complianceScore:8,
+    compliance:bld_comp(schedItem?schedItem.complianceScore:8),
+    editorData:{script:'',voice:'',visual:'',ct:'',notes:'',ht:0},uploadPackage:null});
+  if(schedItem)pd=pd.filter(p=>p.id!==schedItem.id);
+  saveData();
+  const dt=new Date(date+'T00:00:00');
+  curDate=new Date(dt.getFullYear(),dt.getMonth(),1);
+  closeMod();render();
+}
+
+function changeMonth(dir){curDate.setMonth(curDate.getMonth()+dir);render();}
+function goToday(){curDate=new Date();render();}
+function setF(f,el){
+  curF=f;document.querySelectorAll('.fp').forEach(p=>{p.className='fp';});
+  const m={'all':'fa','CH-01':'f1','CH-02':'f2','CH-03':'f3','CH-04':'f4'};
+  el.classList.add(m[f]||'fa');renderCal();renderStats();
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ═══════════════════════════════════════════════
+   VIRALITY CHECK ENGINE
+   Based on 2025/2026 YouTube algorithm research:
+   • Gemini semantic understanding update (Jan 2026)
+   • CTR benchmarks: <3% poor, 4-6% avg, 7%+ good, 10%+ exceptional
+   • Hook window: 20% drop-off in first 15s
+   • Retention target: 70%+ at 30s, 50%+ overall
+   • Viral window compressed to 24-36 hours (2026)
+   • Faces in thumbnail: +25-30% CTR
+   • Thumbnail text <4 words: +30% CTR
+   • Tension Triangle: Title + Thumbnail + Hook must align
+   • Re-engagement points every ~3 minutes
+   • Wed-Fri 3-5 PM optimal upload window
+   ═══════════════════════════════════════════════ */
+
+const VC_CATS = [
+  {
+    id:'ctr', label:'Click Potential (CTR)', icon:'📱', maxPts:20, weight:20,
+    desc:'Will people click your video? CTR <3% = algorithm stops pushing. Target 7%+.',
+    checks:[
+      {id:'v1', label:'Title uses curiosity, fear, or number trigger', pts:4, autoKey:null,
+        fix:'Rewrite title using one of the 3 triggers: Curiosity ("The Truth About..."), Fear/Loss ("How X Destroyed..."), or Specific Number ("$2B Gone in 72 Hours"). Vague titles get ignored.',
+        fix2:'Run all 3 A/B variants and pick the highest-tension option.',
+      },
+      {id:'v2', label:'Title is under 60 characters (mobile truncation)', pts:3, autoKey:'titleLen',
+        fix:'Shorten the title. YouTube truncates at ~60 chars on mobile — most viewers never see the end. Front-load the hook.',
+        fix2:'Move the keyword to the first 3 words. Cut filler words like "the" and "a" where possible.',
+      },
+      {id:'v3', label:'Thumbnail text is 4 words or fewer', pts:4, autoKey:null,
+        fix:'Cut your thumbnail text down to 3-4 words max. Research shows thumbnails with <4 words get 30% higher CTR. Let the title carry the SEO — the thumbnail just needs to create tension.',
+        fix2:'Examples: "NOBODY KNEW THIS" / "THE REAL STORY" / "$2 BILLION GONE"',
+      },
+      {id:'v4', label:'Thumbnail uses face, emotion, or high-contrast visual', pts:5, autoKey:null,
+        fix:'Add a face with a strong expression (shock, fear, curiosity). Faces increase CTR by 25-30% across all niches. If faceless, use a dramatic object with extreme contrast — dark bg, single light source, bold colors.',
+        fix2:'Avoid thumbnail text that just repeats the title word-for-word — this kills CTR. Thumbnail and title should tell different parts of the same story.',
+      },
+      {id:'v5', label:'Title and thumbnail tell different parts of the same story', pts:4, autoKey:null,
+        fix:'This is the "Tension Triangle" — title explains what it is, thumbnail creates the emotional reaction. If both say the same thing, you\'re wasting one. Title = "The Gardner Museum Heist" / Thumbnail text = "NEVER SOLVED".',
+        fix2:'Test your thumbnail next to competitors in the search results. Does it stop the scroll?',
+      },
+    ]
+  },
+  {
+    id:'hook', label:'Hook Power (First 30s)', icon:'🪝', maxPts:20, weight:20,
+    desc:'20% of viewers drop off in first 15 seconds. 70%+ retention at 30s is the algorithm\'s go/no-go signal.',
+    checks:[
+      {id:'v6', label:'Opens with a pattern interrupt — NOT a channel intro', pts:5, autoKey:null,
+        fix:'Delete the first 5 seconds if it\'s a logo, "welcome back," or any form of intro. Start mid-action, mid-revelation, or mid-sentence. MrBeast\'s rule: the first frame is a thumbnail.',
+        fix2:'Proven openers: bold statement of fact, shocking visual, a question that creates instant FOMO, or starting with the end result first.',
+      },
+      {id:'v7', label:'GRAB moment scripted in 0:00–0:05 (bold claim/unexpected fact)', pts:5, autoKey:'hasGrab',
+        fix:'The first 5 seconds must earn the next 30. Write one line that would make someone stop scrolling mid-swipe. It needs to be the single most interesting sentence in the entire video.',
+        fix2:'Formula: "In [year], [person/event] did something that [shocking consequence] — and nobody talks about it."',
+      },
+      {id:'v8', label:'PROMISE delivered at 0:05–0:15 (specific outcome viewer gets)', pts:5, autoKey:'hasPromise',
+        fix:'After the grab, tell them exactly what they\'ll learn or discover by staying. Vague promises lose people. "The full story" is weak. "The $50M trail that led to a sitting senator" is strong.',
+        fix2:'The promise must match what the video actually delivers — broken promises tank retention and teach the algorithm your channel is clickbait.',
+      },
+      {id:'v9', label:'STAKES raised at 0:15–0:30 (cost of leaving now)', pts:5, autoKey:'hasStakes',
+        fix:'Give viewers a reason they can\'t leave. An open loop works best: "But before I get to that — you need to understand what happened the week before..." or "The answer to that is in the second half, and it changes everything."',
+        fix2:'Create a "curiosity debt" — promise to pay off later. The algorithm tracks the 30-second retention cliff. If yours drops here, it kills distribution.',
+      },
+    ]
+  },
+  {
+    id:'retention', label:'Retention Architecture', icon:'⏱️', maxPts:20, weight:20,
+    desc:'Only 16.8% of YouTube videos hit 50%+ retention. Hit this and you outperform 83% of all content.',
+    checks:[
+      {id:'v10', label:'Pattern interrupt scripted every 60–90 seconds', pts:5, autoKey:null,
+        fix:'Map out your video timeline and place a "retention event" every 60-90s: a reveal, a new visual style, a tonal shift, a shocking stat, a clip cut. The algorithm reads frame-by-frame — sudden change resets attention.',
+        fix2:'Easy pattern interrupts: title card, dramatic B-roll cut, zoomed close-up, lower-third graphic, audio music shift, or a "wait — but here\'s the thing..." pivot.',
+      },
+      {id:'v11', label:'Open loop planted mid-video to pull viewers through', pts:5, autoKey:null,
+        fix:'At the 40-50% mark, open a new question the viewer hasn\'t gotten the answer to yet. "Now — here\'s where it gets really weird." Don\'t resolve it until the 80% mark.',
+        fix2:'MrBeast documents re-engagement hooks every ~3 minutes. For a 15min video: hook at 0:30, loop at 5min, re-hook at 8min, payoff at 13min, CTA at 15min.',
+      },
+      {id:'v12', label:'Chapter timestamps in description (boosts AVD + SEO)', pts:5, autoKey:'hasChapters',
+        fix:'Add at least 5 chapter timestamps to your description. YouTube uses these for search indexing AND they appear as visual progress markers — viewers are more likely to jump around (vs leave) when they can see where you\'re going.',
+        fix2:'Make chapter titles intriguing, not descriptive. "4:10 — Background" is bad. "4:10 — The Evidence They Buried" is good. The chapter title itself extends watch time.',
+      },
+      {id:'v13', label:'Strong CTA scripted at the 70-80% mark (not just at the end)', pts:5, autoKey:null,
+        fix:'Most viewers never reach the final 10% of a video. Put your subscribe CTA at the 70-80% mark where retention is still high. Natural line: "If you\'ve made it this far, you clearly love this kind of content — hit subscribe so you don\'t miss the next one."',
+        fix2:'Soft CTA at ~60s mark too: "If this is new to you, subscribe — I do this every week." Low-pressure, high conversion.',
+      },
+    ]
+  },
+  {
+    id:'emotion', label:'Emotional Trigger Score', icon:'😮', maxPts:15, weight:15,
+    desc:'Gemini 2026 update: algorithm now reads sentiment, tone, and emotional resonance frame-by-frame.',
+    checks:[
+      {id:'v14', label:'Primary emotion identified and engineered throughout', pts:5, autoKey:null,
+        fix:'Every viral video is built around ONE dominant emotion: Shock (unexpected revelation), Curiosity (unanswered mystery), Outrage (injustice), Nostalgia (lost era), or Triumph (against-the-odds win). Pick one and make every scene serve it.',
+        fix2:'Grimm Archives dominant emotion = SHOCK + CURIOSITY. Every scene should feel like peeling another layer off a secret. If a section doesn\'t serve that — cut it.',
+      },
+      {id:'v15', label:'Video has a clear villain, hero, or twist structure', pts:5, autoKey:null,
+        fix:'Stories without structure die at the 50% retention mark. Viewers need: a protagonist (even a concept), an antagonist (the cover-up, the crime, the system), rising tension, a reveal, and a payoff.',
+        fix2:'Even a heist documentary needs: WHO did it → WHY nobody saw it coming → HOW they almost got away → the twist. Map your video to this before writing.',
+      },
+      {id:'v16', label:'Creator Take adds original analysis (not just facts)', pts:5, autoKey:'hasCreatorTake',
+        fix:'YouTube\'s Gemini update specifically flags videos that are just "facts retold" — they\'re demonetized for low originality. Your Creator Take is your legal protection AND your virality multiplier. It\'s what makes people share.',
+        fix2:'Creator Take formula: "Here\'s what I think this actually means..." + "Here\'s the detail nobody else noticed..." + "Here\'s why this is still relevant today."',
+      },
+    ]
+  },
+  {
+    id:'seo', label:'SEO & Discovery', icon:'🔍', maxPts:15, weight:15,
+    desc:'Gemini now transcribes audio + reads on-screen text. Keyword in title, description, and spoken script all matter.',
+    checks:[
+      {id:'v17', label:'Primary keyword appears in the first 60 characters of title', pts:4, autoKey:'titleHasKW',
+        fix:'YouTube transcribes your audio and uses it for search ranking — but the title keyword still matters for initial categorization. Front-load it in the first 3-5 words.',
+        fix2:'Check your primary keyword with YouTube autocomplete. If people are searching "Gardner Museum heist" — that phrase should open your title, not end it.',
+      },
+      {id:'v18', label:'Description hook (first 2 lines) contains the core keyword', pts:4, autoKey:'descHook',
+        fix:'The first 125 characters of your description appear in search results. Make them a keyword-rich hook, not a generic "In this video I..." opener.',
+        fix2:'Write the first 2 lines like an ad: what the video reveals + why it matters. Include the primary keyword naturally in the first sentence.',
+      },
+      {id:'v19', label:'15+ tags across viral, advertiser, niche categories', pts:4, autoKey:'tagsCount',
+        fix:'Tags are a secondary signal but still matter for "suggested video" matching. Mix: 7 viral/trending terms, 7 advertiser-friendly broad terms, 6 niche-specific terms. Total: 20 tags ideal.',
+        fix2:'Use the Auto-Fill button in the Meta tab to pull your channel\'s full pre-engineered tag pool. Then manually add 2-3 trending terms from what\'s currently performing on your topic.',
+      },
+      {id:'v20', label:'AI Disclosure toggle is ON (policy compliance)', pts:3, autoKey:'aiDisc',
+        fix:'Failure to disclose AI use is a separate YouTube policy violation from content quality — it can trigger strikes even on fully original content. Always ON.',
+        fix2:'In YouTube Studio: Edit video → Details → Altered/Synthetic content → Yes, contains altered/realistic content. This is non-negotiable for any AI voice or visuals.',
+      },
+    ]
+  },
+  {
+    id:'algo', label:'Algorithm Timing & Signals', icon:'📊', maxPts:10, weight:10,
+    desc:'The viral window is now 24-36 hours. First-hour engagement signals determine whether YouTube expands distribution.',
+    checks:[
+      {id:'v21', label:'Scheduled Wed–Fri between 3–5 PM (peak engagement window)', pts:4, autoKey:'goodTime',
+        fix:'SocialPilot and VidIQ analysis of 2025-2026 data shows Wed-Fri 3-5 PM drives the highest first-hour engagement. This is when YouTube shows videos to the initial "test audience" and your subscribers are most active.',
+        fix2:'If you can only upload on off-days, schedule for 2-3 PM on Tuesday or Thursday. Avoid Monday morning and weekend uploads — they bury your viral window.',
+      },
+      {id:'v22', label:'3+ Shorts linked and scheduled (grows 41% faster)', pts:3, autoKey:'hasShorts',
+        fix:'2026 research shows channels using Shorts + long-form grow 41% faster. Your Shorts should tease the mystery, not spoil it. Schedule S1 same day as the long-form, S2 the next day, S3 3 days later.',
+        fix2:'Shorts algorithm is separate now — a viral Short no longer automatically lifts your long-form. But Shorts drive new-audience discovery, and those viewers then find your main channel.',
+      },
+      {id:'v23', label:'Pinned comment ready for immediate posting after upload', pts:3, autoKey:'hasPinned',
+        fix:'Pin a comment within the first 5 minutes of upload. It signals engagement activity to the algorithm during the critical first hour. Include a link to the next video to stack session watch time.',
+        fix2:'Format: "🔍 Watch next: [LINK] — [one intriguing sentence about next video]\n\n💬 Drop your theory below 👇\n\n🔔 Subscribe for weekly [niche] content"',
+      },
+    ]
+  },
+];
+
+const VC_FIXES_BY_SCORE = {
+  90: {label:'🔥 VIRAL READY', color:'#00F5C4', sub:'Strong packaging + structure. Upload during the Wed-Fri 3-5 PM window.'},
+  75: {label:'✅ STRONG', color:'#9B78FF', sub:'Solid foundations. Address remaining items before upload.'},
+  60: {label:'⚠️ NEEDS WORK', color:'#E8F400', sub:'Don\'t upload yet. The algorithm will limit distribution on a weak video.'},
+  0:  {label:'❌ NOT READY', color:'#FF3B8C', sub:'Fix the critical issues before scheduling. Uploading now wastes the video.'},
+};
+
+let vcVid = null;
+let vcState = {}; // {checkId: bool}
+
+function openViralityCheck(vid) {
+  const v = vd.find(x => x.id === vid);
+  if (!v) return;
+  vcVid = vid;
+  vcState = {};
+  // Auto-evaluate what we can from the data
+  autoEvalVC(v);
+  renderVC();
+  document.getElementById('vco').classList.add('open');
+}
+
+function autoEvalVC(v) {
+  const pkg = v.uploadPackage || {};
+  const sel = pkg.selectedTitle || pkg.titleA || v.title || '';
+  const tags = pkg.tags || [];
+  const shorts = pkg.shorts || [];
+  const descH = pkg.descHook || '';
+  const descCh = pkg.descChapters || '';
+  const descKW = pkg.descKW || '';
+  const pinned = pkg.pinnedComment || '';
+  const sch = v.scheduledTime || '00:00';
+  const schDay = v.scheduledDate ? new Date(v.scheduledDate + 'T00:00:00').getDay() : -1;
+  const script = v.editorData?.script || '';
+  const ct = v.editorData?.ct || '';
+
+  // v1 — title trigger: check for trigger words
+  const trigWords = ['truth','untold','nobody','secret','hidden','exposed','what really','how','why','vanished','destroyed','shocking','banned','forbidden','the real','evidence','reveals','i found'];
+  vcState['v1'] = trigWords.some(w => sel.toLowerCase().includes(w));
+  // v2 — title length
+  vcState['v2'] = sel.length > 0 && sel.length <= 60;
+  // v3 — thumbnail text (we check thumbTxt field)
+  const tTxt = (pkg.thumbTxt || '').trim().split(/\s+/).filter(Boolean).length;
+  vcState['v3'] = tTxt >= 1 && tTxt <= 4;
+  // v4 — face/emotion in thumb (check thumbEmo field)
+  const hasEmo = (pkg.thumbEmo || '').length > 15;
+  vcState['v4'] = hasEmo;
+  // v5 — title ≠ thumb text
+  const thumbT = (pkg.thumbTxt || '').toLowerCase();
+  const titleT = sel.toLowerCase().substring(0, 20);
+  vcState['v5'] = thumbT.length > 0 && titleT.length > 0 && !titleT.includes(thumbT.substring(0, 8));
+  // v6 — pattern interrupt (manual)
+  vcState['v6'] = vcState['v6'] || false;
+  // v7 — GRAB scripted
+  vcState['v7'] = script.toLowerCase().includes('[grab]') || script.toLowerCase().includes('0:00') || script.toLowerCase().includes('grab');
+  // v8 — PROMISE
+  vcState['v8'] = script.toLowerCase().includes('[promise]') || script.toLowerCase().includes('promise') || script.toLowerCase().includes('0:05') || script.toLowerCase().includes('0:10');
+  // v9 — STAKES
+  vcState['v9'] = script.toLowerCase().includes('[stakes]') || script.toLowerCase().includes('stakes') || script.toLowerCase().includes('0:15') || script.toLowerCase().includes('0:20');
+  // v10 — pattern interrupt (manual)
+  vcState['v10'] = vcState['v10'] || false;
+  // v11 — open loop (manual)
+  vcState['v11'] = script.toLowerCase().includes('loop') || script.toLowerCase().includes('but before') || script.toLowerCase().includes('here\'s where') || script.toLowerCase().includes('but wait');
+  // v12 — chapters
+  vcState['v12'] = descCh.includes('0:00') || descCh.includes('00:00') || (descCh.match(/\d+:\d+/g)||[]).length >= 3;
+  // v13 — mid-video CTA (manual)
+  vcState['v13'] = vcState['v13'] || script.toLowerCase().includes('subscribe') || script.toLowerCase().includes('cta');
+  // v14 — emotion (manual)
+  vcState['v14'] = vcState['v14'] || false;
+  // v15 — story structure (manual)
+  vcState['v15'] = vcState['v15'] || false;
+  // v16 — creator take
+  vcState['v16'] = ct.length > 50 || (script.toLowerCase().includes('creator take') || script.toLowerCase().includes('my take') || script.toLowerCase().includes('i think'));
+  // v17 — keyword in title
+  const kwTerms = (descKW || '').split('|').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  vcState['v17'] = kwTerms.some(kw => sel.toLowerCase().includes(kw.substring(0, Math.min(kw.length, 12)))) || sel.length > 20;
+  // v18 — desc hook has keyword
+  vcState['v18'] = descH.length > 40;
+  // v19 — tags count
+  vcState['v19'] = tags.length >= 15;
+  // v20 — AI disclosure
+  vcState['v20'] = pkg.aiDisclosure === true;
+  // v21 — good upload time Wed-Fri 3-5 PM
+  const [hr] = (sch || '14:00').split(':').map(Number);
+  const isGoodDay = schDay >= 3 && schDay <= 5; // Wed=3, Thu=4, Fri=5
+  const isGoodHr = hr >= 14 && hr <= 17;
+  vcState['v21'] = isGoodDay && isGoodHr;
+  // v22 — shorts
+  vcState['v22'] = shorts.length >= 3;
+  // v23 — pinned comment
+  vcState['v23'] = pinned.length > 30;
+}
+
+function calcVCScore() {
+  let total = 0, max = 0;
+  VC_CATS.forEach(cat => {
+    cat.checks.forEach(chk => {
+      max += chk.pts;
+      if (vcState[chk.id]) total += chk.pts;
+    });
+  });
+  return { score: total, max, pct: Math.round((total / max) * 100) };
+}
+
+function getVCVerdict(pct) {
+  if (pct >= 90) return VC_FIXES_BY_SCORE[90];
+  if (pct >= 75) return VC_FIXES_BY_SCORE[75];
+  if (pct >= 60) return VC_FIXES_BY_SCORE[60];
+  return VC_FIXES_BY_SCORE[0];
+}
+
+function renderVC() {
+  const v = vd.find(x => x.id === vcVid);
+  if (!v) return;
+  const { score, max, pct } = calcVCScore();
+  const verdict = getVCVerdict(pct);
+
+  // Render score header
+  document.getElementById('vc-score-num').textContent = pct;
+  document.getElementById('vc-score-bar').style.width = pct + '%';
+  document.getElementById('vc-score-bar').style.background = verdict.color;
+  document.getElementById('vc-score-num').style.color = verdict.color;
+  document.getElementById('vc-verdict-label').textContent = verdict.label;
+  document.getElementById('vc-verdict-label').style.color = verdict.color;
+  document.getElementById('vc-verdict-sub').textContent = verdict.sub;
+  document.getElementById('vc-pts').textContent = `${score} / ${max} pts`;
+
+  // Render categories
+  const body = document.getElementById('vc-body');
+  body.innerHTML = VC_CATS.map(cat => {
+    const catPts = cat.checks.reduce((a,c) => a + (vcState[c.id] ? c.pts : 0), 0);
+    const catMax = cat.checks.reduce((a,c) => a + c.pts, 0);
+    const catPct = Math.round((catPts / catMax) * 100);
+    const failed = cat.checks.filter(c => !vcState[c.id]);
+
+    return `<div class="vc-cat">
+      <div class="vc-cat-head" onclick="toggleCat('${cat.id}')">
+        <div class="vc-cat-left">
+          <span class="vc-cat-icon">${cat.icon}</span>
+          <div class="vc-cat-info">
+            <div class="vc-cat-name">${cat.label}</div>
+            <div class="vc-cat-desc">${cat.desc}</div>
+          </div>
+        </div>
+        <div class="vc-cat-right">
+          <div class="vc-cat-score" style="color:${catPct>=80?'var(--mint)':catPct>=60?'var(--lemon)':'var(--berry)'}">${catPts}/${catMax}</div>
+          <div class="vc-mini-bar"><div class="vc-mini-fill" style="width:${catPct}%;background:${catPct>=80?'var(--mint)':catPct>=60?'var(--lemon)':'var(--berry)'}"></div></div>
+          <span class="vc-arr" id="arr-${cat.id}">▼</span>
+        </div>
+      </div>
+      <div class="vc-cat-body" id="catb-${cat.id}">
+        ${cat.checks.map(chk => `
+          <div class="vc-check ${vcState[chk.id] ? 'vc-pass' : 'vc-fail'}" id="vchk-${chk.id}">
+            <div class="vc-check-top">
+              <div class="vc-cb" onclick="toggleVC('${chk.id}')">${vcState[chk.id] ? '✓' : ''}</div>
+              <div class="vc-check-lbl">${chk.label}</div>
+              <div class="vc-pts-badge">${chk.pts}pt</div>
+            </div>
+            ${!vcState[chk.id] ? `
+            <div class="vc-fix-block">
+              <div class="vc-fix-label">🔧 Fix</div>
+              <div class="vc-fix-txt">${chk.fix}</div>
+              ${chk.fix2 ? `<div class="vc-fix2">💡 ${chk.fix2}</div>` : ''}
+            </div>` : ''}
+          </div>`).join('')}
+        ${failed.length === 0 ? `<div class="vc-all-pass">✓ All checks passing in this category</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleVC(cid) {
+  vcState[cid] = !vcState[cid];
+  renderVC();
+}
+
+function toggleCat(catId) {
+  const body = document.getElementById('catb-' + catId);
+  const arr = document.getElementById('arr-' + catId);
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (arr) arr.textContent = isOpen ? '▶' : '▼';
+}
+
+function closeVC() {
+  document.getElementById('vco').classList.remove('open');
+  vcVid = null;
+}
+
+function saveVCToVideo() {
+  const v = vd.find(x => x.id === vcVid);
+  if (!v) return;
+  const { pct } = calcVCScore();
+  const verdict = getVCVerdict(pct);
+  if (!v.viralityCheck) v.viralityCheck = {};
+  v.viralityCheck = { score: pct, verdict: verdict.label, state: { ...vcState }, ts: Date.now() };
+  if (pct >= 75 && v.status === 'failed') v.status = 'approved';
+  saveData(); render(); closeVC();
+  if (selId === vcVid) renderPkg(vcVid);
+}
+
+loadTheme();loadData();render();
+</script>
+
+<!-- VIRALITY CHECK MODAL CSS -->
+<style>
+.vco{position:fixed;inset:0;background:rgba(7,5,15,.85);backdrop-filter:blur(8px);
+  z-index:400;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
+[data-theme="light"] .vco{background:rgba(26,16,64,.65);}
+.vco.open{display:flex;}
+.vc-modal{background:var(--panel);border:1px solid var(--border-hi);border-radius:14px;
+  width:760px;max-width:98vw;box-shadow:var(--shadow);display:flex;flex-direction:column;}
+.vc-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-shrink:0;}
+.vc-head-left{flex:1;}
+.vc-badge{font-family:'Charger',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:2px;background:rgba(232,244,0,.08);border:1px solid rgba(232,244,0,.2);
+  color:var(--lemon);padding:3px 10px;border-radius:5px;display:inline-block;margin-bottom:8px;}
+.vc-ttl{font-family:'Charger',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--text);margin-bottom:3px;}
+.vc-sub{font-size:11px;color:var(--text-m);line-height:1.4;}
+.vc-score-panel{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;padding:8px 16px;
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;min-width:130px;}
+.vc-score-big{font-family:'Dropline',monospace;font-size:42px;font-weight:700;letter-spacing:.02em;line-height:1;}
+.vc-score-max{font-size:10px;color:var(--text-d);}
+.vc-score-track{width:100%;height:5px;background:rgba(112,72,248,.1);border-radius:3px;overflow:hidden;}
+.vc-score-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.34,1.56,.64,1);}
+.vc-verdict-label{font-family:'Charger',sans-serif;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+.vc-verdict-sub{font-size:9px;color:var(--text-d);text-align:center;line-height:1.3;}
+.vc-pts{font-family:'Dropline',monospace;font-size:9px;color:var(--text-d);letter-spacing:.05em;}
+
+.vc-info-row{padding:8px 22px;background:var(--card2);border-bottom:1px solid var(--border);
+  display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+.vc-info-chip{font-size:9px;display:flex;align-items:center;gap:4px;color:var(--text-d);}
+.vc-info-chip strong{color:var(--text-m);}
+.vc-info-dot{width:5px;height:5px;border-radius:50%;}
+
+.vc-body-wrap{flex:1;overflow-y:auto;padding:12px 22px;display:flex;flex-direction:column;gap:8px;}
+
+.vc-cat{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
+.vc-cat:hover{border-color:var(--border-hi);}
+.vc-cat-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;gap:12px;}
+.vc-cat-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.vc-cat-icon{font-size:16px;flex-shrink:0;}
+.vc-cat-info{flex:1;min-width:0;}
+.vc-cat-name{font-family:'Charger',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text);}
+.vc-cat-desc{font-size:10px;color:var(--text-d);line-height:1.3;margin-top:2px;}
+.vc-cat-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.vc-cat-score{font-family:'Dropline',monospace;font-size:12px;font-weight:700;letter-spacing:.05em;white-space:nowrap;}
+.vc-mini-bar{width:50px;height:4px;background:rgba(112,72,248,.1);border-radius:2px;overflow:hidden;}
+.vc-mini-fill{height:100%;border-radius:2px;transition:width .4s;}
+.vc-arr{font-size:10px;color:var(--text-d);transition:transform .2s;}
+
+.vc-cat-body{padding:0 12px 10px;display:flex;flex-direction:column;gap:6px;}
+.vc-check{border-radius:7px;overflow:hidden;transition:all .2s;}
+.vc-pass{background:rgba(0,200,150,.04);border:1px solid rgba(0,200,150,.15);}
+.vc-fail{background:rgba(255,59,140,.04);border:1px solid rgba(255,59,140,.18);}
+.vc-check-top{display:flex;align-items:center;gap:8px;padding:8px 10px;}
+.vc-cb{width:18px;height:18px;border-radius:4px;flex-shrink:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;}
+.vc-pass .vc-cb{background:var(--mint);color:#000;border:none;}
+.vc-fail .vc-cb{background:transparent;border:1px solid rgba(255,59,140,.5);color:transparent;}
+.vc-fail .vc-cb:hover{background:rgba(255,59,140,.1);}
+.vc-check-lbl{flex:1;font-size:11px;color:var(--text-m);line-height:1.3;}
+.vc-pass .vc-check-lbl{color:var(--text-d);}
+.vc-pts-badge{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:2px 6px;border-radius:3px;flex-shrink:0;white-space:nowrap;}
+.vc-pass .vc-pts-badge{background:rgba(0,200,150,.1);color:var(--mint);border:1px solid rgba(0,200,150,.2);}
+.vc-fail .vc-pts-badge{background:rgba(255,59,140,.08);color:var(--berry);border:1px solid rgba(255,59,140,.2);}
+
+.vc-fix-block{padding:8px 12px 10px 36px;border-top:1px solid rgba(255,59,140,.1);}
+.vc-fix-label{font-family:'Charger',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--berry);margin-bottom:4px;}
+.vc-fix-txt{font-size:10px;color:var(--text-m);line-height:1.6;}
+.vc-fix2{font-size:10px;color:var(--text-d);line-height:1.5;margin-top:5px;padding-top:5px;
+  border-top:1px solid rgba(255,255,255,.05);}
+
+.vc-all-pass{padding:8px 12px 10px;font-size:10px;color:var(--mint);font-family:'Charger',sans-serif;
+  font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+
+.vc-foot{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;}
+.vc-btn{font-family:'Charger',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:9px 18px;border-radius:8px;cursor:pointer;transition:all .2s;}
+.vc-cancel{background:var(--card2);border:1px solid var(--border);color:var(--text-m);}
+.vc-cancel:hover{border-color:var(--border-hi);}
+.vc-save{background:linear-gradient(135deg,var(--v),var(--berry));border:none;color:#fff;}
+.vc-save:hover{opacity:.9;}
+</style>
+
+<!-- VIRALITY CHECK MODAL HTML -->
+<div class="vco" id="vco">
+<div class="vc-modal">
+  <div class="vc-head">
+    <div class="vc-head-left">
+      <div class="vc-badge">🔥 Virality Check — 2026 Algorithm</div>
+      <div class="vc-ttl" id="vc-vid-title">Video Title</div>
+      <div class="vc-sub">Based on Jan 2026 Gemini update · CTR benchmarks · Hook research · Retention architecture · Timing signals</div>
+    </div>
+    <div class="vc-score-panel">
+      <div class="vc-score-big" id="vc-score-num" style="color:var(--berry)">0</div>
+      <div class="vc-pts" id="vc-pts">0 / 100 pts</div>
+      <div class="vc-score-track"><div class="vc-score-fill" id="vc-score-bar" style="width:0%"></div></div>
+      <div class="vc-verdict-label" id="vc-verdict-label">—</div>
+      <div class="vc-verdict-sub" id="vc-verdict-sub">Running check...</div>
+    </div>
+  </div>
+  <div class="vc-info-row">
+    <div class="vc-info-chip"><div class="vc-info-dot" style="background:var(--mint)"></div>Auto-checked: Package data</div>
+    <div class="vc-info-chip"><div class="vc-info-dot" style="background:var(--berry)"></div>Manual: Content quality items</div>
+    <div class="vc-info-chip">CTR target: <strong>7%+</strong></div>
+    <div class="vc-info-chip">Retention target: <strong>50%+</strong> overall, <strong>70%+</strong> at 30s</div>
+    <div class="vc-info-chip">Viral window: <strong>24–36 hrs</strong></div>
+  </div>
+  <div class="vc-body-wrap" id="vc-body"></div>
+  <div class="vc-foot">
+    <button class="vc-btn vc-cancel" onclick="closeVC()">Close</button>
+    <button class="vc-btn vc-save" onclick="saveVCToVideo()">✓ Save Score & Close</button>
+  </div>
+</div>
+</div>
+</body>
+</html>

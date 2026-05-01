@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Command Center — Grimm Archives</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@500;600;700&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0D0D0F;--bg2:#141416;--bg3:#1C1C1F;--bg4:#242428;
+    --border:#2A2A2E;--border2:#333338;
+    --text:#F0EFE8;--text2:#9B9A94;--text3:#5A5958;
+    --gold:#EF9F27;--gold-dim:#BA7517;--gold-bg:#1F1708;--gold-light:#FAEEDA;
+    --green:#639922;--green-bg:#0F1A06;--green-light:#EAF3DE;
+    --red:#E24B4A;--red-bg:#1F0909;
+    --blue:#185FA5;--blue-bg:#061425;
+    --amber:#EF9F27;
+    --radius:8px;--radius-lg:12px;
+  }
+  html,body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;min-height:100vh;line-height:1.5}
+  h1,h2,h3,.brand{font-family:'Syne',sans-serif}
+
+  /* LAYOUT */
+  .app{max-width:960px;margin:0 auto;padding:24px 20px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:0.5px solid var(--border)}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo-icon{width:36px;height:36px;border-radius:10px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .logo-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+  .logo-sub{font-size:11px;color:var(--text2);margin-top:1px}
+  .topright{display:flex;align-items:center;gap:10px}
+  .save-ind{font-size:11px;color:var(--green);opacity:0;transition:opacity .3s}
+  .save-ind.show{opacity:1}
+  .date-pill{font-size:11px;color:var(--text2);background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px}
+
+  /* TABS */
+  .tabs{display:flex;gap:2px;margin-bottom:24px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border)}
+  .tab{flex:1;padding:7px 4px;font-size:11px;font-weight:500;border:none;background:transparent;color:var(--text2);border-radius:6px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif}
+  .tab:hover{color:var(--text)}
+  .tab.active{background:var(--bg4);color:var(--text);border:0.5px solid var(--border2);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+  #tc{min-height:400px}
+
+  /* SHARED */
+  .sec-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;margin-top:20px}
+  .sec-lbl:first-child{margin-top:0}
+  .btn-primary{padding:8px 16px;font-size:11px;font-weight:500;background:var(--gold-dim);color:var(--gold-light);border:none;border-radius:var(--radius);cursor:pointer;transition:background .15s;font-family:'Inter',sans-serif}
+  .btn-primary:hover{background:var(--gold)}
+  .btn-sec{padding:7px 12px;font-size:11px;background:transparent;color:var(--text2);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:'Inter',sans-serif}
+  .btn-sec:hover{color:var(--text);border-color:var(--border2)}
+  .show-add{width:100%;margin-top:8px;padding:10px 12px;border:0.5px dashed var(--border2);border-radius:var(--radius);background:transparent;color:var(--text2);font-size:11px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;transition:all .15s}
+  .show-add:hover{background:var(--bg3);color:var(--text)}
+  .badge{font-size:9px;font-weight:500;padding:2px 8px;border-radius:20px;cursor:pointer;border:none;white-space:nowrap;font-family:'Inter',sans-serif}
+  .bl{background:var(--green-bg);color:var(--green);border:0.5px solid var(--green)}
+  .bb{background:var(--gold-bg);color:var(--gold);border:0.5px solid var(--gold-dim)}
+  .bp{background:var(--bg4);color:var(--text2);border:0.5px solid var(--border2)}
+
+  /* CHANNELS */
+  .ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .ch-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .15s}
+  .ch-card.ch-live{border-color:var(--gold-dim)}
+  .ch-card:hover{border-color:var(--border2)}
+  .ch-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+  .ch-name{font-size:13px;font-weight:600;color:var(--text);cursor:pointer;font-family:'Syne',sans-serif}
+  .ch-niche{font-size:10px;color:var(--text2);margin-top:3px}
+  .ch-name-inp{font-size:13px;font-weight:600;color:var(--text);border:none;border-bottom:1px solid var(--gold);background:transparent;outline:none;width:100%;font-family:'Syne',sans-serif}
+  .ch-stats{display:flex;gap:16px}
+  .ch-stat .v{font-size:15px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif}
+  .ch-stat .l{font-size:9px;color:var(--text2);margin-top:1px;text-transform:uppercase;letter-spacing:.04em}
+  .rpm-bar{height:2px;background:var(--bg4);border-radius:2px;margin-top:10px;overflow:hidden}
+  .rpm-fill{height:100%;border-radius:2px;background:var(--gold);transition:width .5s}
+  .ch-note{font-size:10px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);cursor:pointer}
+  .ch-note:hover{color:var(--text2)}
+  .ch-note-inp{font-size:10px;color:var(--text);border:none;border-bottom:0.5px solid var(--border2);background:transparent;outline:none;width:100%;font-family:'Inter',sans-serif;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)}
+
+  /* PIPELINE */
+  .pipe-sel{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+  .pipe-btn{font-size:10px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+  .pipe-btn.sel{background:var(--gold-bg);color:var(--gold);border-color:var(--gold-dim)}
+  .stages{display:flex;flex-direction:column;gap:6px}
+  .stage{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+  .stage:hover{border-color:var(--border2)}
+  .stage.sd{border-color:var(--green)}
+  .stage.sc{border:1.5px solid var(--gold)}
+  .stage.sp{opacity:.5}
+  .sdot{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .2s}
+  .sdot.d{background:var(--green);border-color:var(--green);color:#fff}
+  .sdot.c{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light)}
+  .s-inf{flex:1}
+  .s-name{font-size:12px;font-weight:500;color:var(--text)}
+  .s-det{font-size:10px;color:var(--text2);margin-top:2px}
+  .s-tool{font-size:9px;padding:2px 8px;background:var(--bg4);border-radius:20px;color:var(--text2);white-space:nowrap}
+  .t-row{display:flex;gap:8px;margin-top:14px}
+  .t-card{flex:1;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;text-align:center}
+  .t-card .v{font-size:18px;font-weight:600;color:var(--text);font-family:'Syne',sans-serif}
+  .t-card .l{font-size:9px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+
+  /* QUEUE */
+  .q-filters{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .qf{font-size:10px;padding:4px 11px;border-radius:20px;border:0.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+  .qf.sel{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+  .q-search{font-size:11px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;width:100%;margin-bottom:12px;font-family:'Inter',sans-serif;transition:border-color .15s}
+  .q-search:focus{border-color:var(--gold-dim)}
+  .q-search::placeholder{color:var(--text3)}
+  .q-stats{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .q-stat-pill{font-size:10px;padding:3px 10px;border-radius:20px}
+  .q-list{display:flex;flex-direction:column;gap:5px;max-height:420px;overflow-y:auto;padding-right:2px}
+  .q-list::-webkit-scrollbar{width:3px}
+  .q-list::-webkit-scrollbar-track{background:var(--bg2)}
+  .q-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+  .q-item{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:9px 12px;display:flex;align-items:flex-start;gap:8px;transition:border-color .15s;cursor:default}
+  .q-item:hover{border-color:var(--border2)}
+  .q-pri{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;cursor:pointer}
+  .q-pri.high{background:var(--red)}.q-pri.mid{background:var(--gold)}.q-pri.low{background:var(--green)}
+  .q-day{font-size:10px;color:var(--text2);min-width:28px;margin-top:1px;font-weight:500}
+  .q-body{flex:1;min-width:0}
+  .q-title{font-size:11px;font-weight:500;color:var(--text);line-height:1.4;cursor:pointer;transition:color .15s}
+  .q-title:hover{color:var(--gold)}
+  .q-meta{display:flex;gap:5px;margin-top:4px;align-items:center;flex-wrap:wrap}
+  .q-ch-l{font-size:9px;color:var(--text2)}
+  .q-src{font-size:9px;padding:1px 6px;background:var(--bg4);border-radius:4px;color:var(--text2)}
+  .q-st{font-size:9px;padding:1px 7px;border-radius:20px}
+  .st-s{background:var(--green-bg);color:var(--green)}
+  .st-r{background:var(--blue-bg);color:var(--blue)}
+  .st-i{background:var(--bg4);color:var(--text2)}
+  .q-del{font-size:11px;color:var(--text3);cursor:pointer;padding:2px 5px;border-radius:4px;background:transparent;border:none;opacity:0;transition:all .15s;flex-shrink:0}
+  .q-item:hover .q-del{opacity:1}
+  .q-del:hover{color:var(--red);background:var(--red-bg)}
+  .add-form{background:var(--bg2);border:0.5px dashed var(--border2);border-radius:var(--radius);padding:12px;margin-top:10px}
+  .add-inp{flex:1;font-size:11px;padding:7px 10px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
+  .add-inp:focus{border-color:var(--gold-dim)}
+  .add-inp::placeholder{color:var(--text3)}
+  .add-sels{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .add-sel{flex:1;min-width:80px;font-size:10px;padding:6px 8px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);outline:none;cursor:pointer;font-family:'Inter',sans-serif}
+  .add-sel:focus{border-color:var(--gold-dim)}
+
+  /* SCRIPT ENGINE */
+  .script-layout{display:grid;grid-template-columns:1fr 190px;gap:16px}
+  .script-form{display:flex;flex-direction:column;gap:10px}
+  .script-inp{font-size:11px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;width:100%;font-family:'Inter',sans-serif;transition:border-color .15s}
+  .script-inp:focus{border-color:var(--gold-dim)}
+  .script-inp::placeholder{color:var(--text3)}
+  .script-ta{font-size:11px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg2);color:var(--text);outline:none;width:100%;resize:vertical;min-height:70px;font-family:'Inter',sans-serif;transition:border-color .15s}
+  .script-ta:focus{border-color:var(--gold-dim)}
+  .script-ta::placeholder{color:var(--text3)}
+  .script-label{font-size:10px;color:var(--text2);margin-bottom:4px}
+  .ab-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+  .ab-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;transition:border-color .15s}
+  .ab-card:hover{border-color:var(--border2)}
+  .ab-type{font-size:9px;font-weight:500;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:8px}
+  .ab-curiosity{background:var(--blue-bg);color:#5BA3F5}
+  .ab-fear{background:var(--red-bg);color:#F07070}
+  .ab-result{background:var(--green-bg);color:var(--green)}
+  .ab-inp{font-size:11px;padding:6px 8px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg3);color:var(--text);outline:none;width:100%;font-family:'Inter',sans-serif;transition:border-color .15s}
+  .ab-inp:focus{border-color:var(--gold-dim)}
+  .ab-inp::placeholder{color:var(--text3)}
+  .ab-hint{font-size:9px;color:var(--text3);margin-top:5px;line-height:1.4}
+  .ret-sidebar{display:flex;flex-direction:column;gap:7px}
+  .ret-metric{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:8px 10px}
+  .ret-metric .v{font-size:15px;font-weight:600;font-family:'Syne',sans-serif}
+  .ret-metric .l{font-size:9px;color:var(--text2);margin-top:2px;line-height:1.4}
+  .ret-metric.good .v{color:var(--green)}
+  .ret-metric.warn .v{color:var(--gold)}
+  .ret-metric.bad .v{color:var(--red)}
+  .ret-rule{background:var(--bg3);border-radius:var(--radius);padding:7px 10px;font-size:9px;color:var(--text2);line-height:1.5}
+  .ret-rule strong{color:var(--text)}
+  .checklist{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+  .check-item{display:flex;align-items:flex-start;gap:10px;font-size:11px;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s}
+  .check-item.checked{background:rgba(99,153,34,.05);border-color:var(--green)}
+  .check-item:hover{border-color:var(--border2)}
+  .check-box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .2s}
+  .check-item.checked .check-box{background:var(--green);border-color:var(--green);color:#fff}
+  .check-text{flex:1;color:var(--text);line-height:1.5}
+
+  /* TOOLS */
+  .tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+  .tool-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:11px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;text-decoration:none}
+  .tool-card:hover{border-color:var(--gold-dim);background:var(--bg3)}
+  .tool-dot{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .tool-nm{font-size:11px;font-weight:500;color:var(--text)}
+  .tool-us{font-size:9px;color:var(--text2);margin-top:2px}
+  .sched-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px 16px}
+  .sched-r{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:0.5px solid var(--border)}
+  .sched-r:last-child{border:none}
+  .sched-d{font-size:11px;font-weight:500;color:var(--text);width:80px;flex-shrink:0}
+  .sched-t{font-size:11px;color:var(--text2);flex:1}
+  .sched-h{font-size:11px;color:var(--gold);white-space:nowrap;font-weight:500}
+  .sched-tot{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border2)}
+  .sched-tot span{font-size:11px;color:var(--text2)}
+  .sched-tot strong{font-size:13px;font-weight:600;color:var(--gold);font-family:'Syne',sans-serif}
+  .repo-badge{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);text-decoration:none;transition:border-color .15s;margin-bottom:14px}
+  .repo-badge:hover{border-color:var(--gold-dim)}
+  .repo-icon{font-size:18px}
+  .repo-info .name{font-size:11px;font-weight:500;color:var(--text)}
+  .repo-info .desc{font-size:9px;color:var(--text2);margin-top:2px}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:2rem;color:var(--text2);font-size:12px}
+
+  /* DIVIDER */
+  .divider{height:0.5px;background:var(--border);margin:16px 0}
+
+  @media(max-width:640px){
+    .ch-grid,.ab-grid,.script-layout,.tools-grid{grid-template-columns:1fr}
+    .script-layout{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="empty">Loading Creator Command Center...</div>
+</div>
+
+<script>
+// ─── Storage (localStorage for standalone) ───────────────────────────────────
+const storage = {
+  get: key => { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; } },
+  set: (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch { return false; } }
+};
+
+// ─── Default Data ─────────────────────────────────────────────────────────────
+const DC = [
+  {id:'ch0',name:'Grimm Archives',niche:'Money heists · Hidden wealth · Lost treasure',status:'live',rpm:'$18–45',rpmPct:60,audience:'US',tier:'Finance',note:'Active — 30-day content plan loaded'},
+  {id:'ch1',name:'Channel 2',niche:'Betrayal & Revenge True Stories',status:'build',rpm:'$12–13',rpmPct:15,audience:'US',tier:'Drama',note:'21x growth niche — fastest path to YPP'},
+  {id:'ch2',name:'Channel 3',niche:'Jungian Psychology & Shadow Work',status:'pause',rpm:'$7–12',rpmPct:8,audience:'Global',tier:'Education',note:'Slow burn — high LTV for digital products'},
+  {id:'ch3',name:'Channel 4',niche:'Sleep Soundscapes & Sleep Stories',status:'pause',rpm:'$10.92',rpmPct:8,audience:'Global',tier:'Wellness',note:'Passive — 2 uploads/month, runs itself'}
+];
+const DP = {ch0:0,ch1:0,ch2:0,ch3:0};
+const SN = ['1. Research & Ideation','2. Script (Retention-Engineered)','3. Title Alignment Check','4. AB Test 3 Variants','5. Visuals — Whisk + Hunyuan','6. Voiceover','7. Assembly + Pattern Interrupts','8. Thumbnail (3 variants)','9. Upload & Schedule'];
+const SD = ['AI Ask Studio → validated idea · NotebookLM sources','Hook (Grab/Promise/Stakes) + rehooks every 60–90s + open loops','Verify title/description/tags match script content exactly','Curiosity vs Fear vs Result — 3 psychologically distinct title variants','8–12 Whisk images + 3–5 Hunyuan cinematic clips per cue marker','AI narration — ElevenLabs or Kokoro TTS — matched to script timing','CapCut auto-silence + auto-captions + pattern interrupt cuts every 60s','Dark bg · gold accent · 1 object · 3-word text — A/B all 3 variants','Chapters · VideoObject schema · tags · cards · peak US publish time'];
+const ST = ['NotebookLM · AI Ask Studio','AgriciDaniel/claude-youtube repo','Claude AI','YouTube native AB test','Whisk · Hunyuan','ElevenLabs · Kokoro','CapCut (free)','Canva (free)','YouTube Studio'];
+const DEFAULT_CHECKS = [
+  'Never open with "Hey guys welcome back" — causes measurable instant drop-off',
+  'Hook has all 3 parts: Grab (0–5s), Promise (5–15s), Stakes (15–30s)',
+  'Script content matches title/description — no YouTube AI mismatch',
+  'Pattern interrupt every 60–90 seconds: [CAMERA] [B-ROLL] [GRAPHIC] [SFX] [STAT]',
+  'Soft CTA planted at ~1 min mark (60% of viewers still watching)',
+  'Open loop teased mid-video to force completion (68% higher completion)',
+  'Retention re-hook at ~60% mark — second hook moment',
+  'Hard CTA in outro — maintain energy to last second, no wind-down',
+  'AB test set up: 3 title variants (Curiosity / Fear / Result) + 3 thumbnails'
+];
+const SEED_QUEUE = [
+  {id:'s1',day:1,title:"The $500 Million Ghost Gallery: The World's Most Expensive Unsolved Heist",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s2',day:2,title:'The Lufthansa Heist: The Truth Behind Americas Greatest Cash Robbery',ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s3',day:3,title:"The Lost Dutchman's Gold Mine: A $200 Million Cursed Fortune",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s4',day:4,title:"The $600,000,000 Phantom: How the Ronin Network Was Emptied",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s5',day:5,title:"Yamashita's Gold: The Hunt for WWII's Most Controversial Fortune",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s6',day:6,title:"The Copper Scroll: A 2,000-Year-Old Map to Millions",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s7',day:7,title:"The Original $20 Billion Scam: The Rise and Fall of Charles Ponzi",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s8',day:8,title:"The Nazi Gold Train: A $3 Billion Ghost Story",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s9',day:9,title:"The Mt. Gox Meltdown: The Mystery of the 850,000 Missing Bitcoin",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s10',day:10,title:"D.B. Cooper: The Only Unsolved Skyjacking in History",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'high'},
+  {id:'s11',day:11,title:"The $300 Million Ghost Room: Where is the Amber Room?",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s12',day:12,title:"El Dorado: The Deadly Truth Behind the City of Gold",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s13',day:13,title:"The $20 Million Liquid Gold Heist: The Great Maple Syrup Robbery",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s14',day:14,title:"King John's Lost Fortune: A 1,000-Year-Old $70 Million Cold Case",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s15',day:15,title:"Dead Men Tell No Tales: The $200,000,000 Locked Crypto Vault",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s16',day:16,title:"Finding $10 Million in a Backyard: The Mystery of the Saddle Ridge Hoard",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s17',day:17,title:"The Oak Island Money Pit: The World's Most Expensive Unsolved Hole",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s18',day:18,title:"The $400 Billion King: How Mansa Musa Destroyed an Economy with Gold",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s19',day:19,title:"The Vanishing Fortune: Where Did the Romanov Gold Go?",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s20',day:20,title:"George Washington: The Secret Real Estate Empire of the First President",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'mid'},
+  {id:'s21',day:21,title:"The $100 Billion Ghost: The Secret Wealth of Howard Hughes",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s22',day:22,title:"The Trillion-Dollar Theft: The Secret Files of Nikola Tesla",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s23',day:23,title:"The Man Who Never Died: The Financial Secrets of the Count of Saint Germain",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s24',day:24,title:"The Golden Library: Ivan the Terrible's $1 Billion Missing Archive",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s25',day:25,title:"Charlemagne's Secret: The $50 Million Artifact of Power",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s26',day:26,title:"The $33 Million Mistake: The Hunt for the Missing Faberge Eggs",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s27',day:27,title:"The Vatican's Secret Vault: $15 Billion in Hidden History?",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s28',day:28,title:"The Vanishing $160 Million: Where is the Confederate Gold?",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s29',day:29,title:"The Forbidden Tomb: A $20 Billion Fortune We're Too Scared to Open",ch:'ch0',source:'AI Ask Studio',status:'script',priority:'low'},
+  {id:'s30',day:30,title:"D.B. Cooper Follow-up: New Evidence from the Washington Wilderness",ch:'ch0',source:'Research',status:'idea',priority:'low'}
+];
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let S = {
+  channels: [], pipeline: {}, queue: [], checks: [],
+  tab: 'channels', pipeCh: 'ch0',
+  qFilter: 'all', qSearch: '',
+  addForm: false, editName: null, editNote: null,
+  scriptTopic: '', scriptPoints: '',
+  abVariants: ['','','']
+};
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function load() {
+  S.channels  = storage.get('ccc:channels')  || DC;
+  S.pipeline  = storage.get('ccc:pipeline')  || DP;
+  const ex    = storage.get('ccc:queue')     || [];
+  const et    = new Set(ex.map(q => q.title.toLowerCase().trim()));
+  S.queue     = [...ex, ...SEED_QUEUE.filter(s => !et.has(s.title.toLowerCase().trim()))];
+  const rawC  = storage.get('ccc:checks');
+  S.checks    = rawC && rawC.length ? rawC : DEFAULT_CHECKS.map(t => ({text:t,done:false}));
+  save();
+  render();
+}
+
+function save() {
+  storage.set('ccc:channels', S.channels);
+  storage.set('ccc:pipeline', S.pipeline);
+  storage.set('ccc:queue',    S.queue);
+  storage.set('ccc:checks',   S.checks);
+  const el = document.getElementById('si');
+  if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 1500); }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const d = new Date();
+  document.getElementById('app').innerHTML = `
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">🎬</div>
+    <div>
+      <div class="logo-text">Creator Command Center</div>
+      <div class="logo-sub">4 channels · ${S.queue.length} queued · Grimm Archives HQ</div>
+    </div>
+  </div>
+  <div class="topright">
+    <span class="save-ind" id="si">✓ Saved</span>
+    <div class="date-pill">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}</div>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab ${S.tab==='channels'?'active':''}" onclick="go('channels')">Channels</button>
+  <button class="tab ${S.tab==='pipeline'?'active':''}" onclick="go('pipeline')">Pipeline</button>
+  <button class="tab ${S.tab==='queue'?'active':''}" onclick="go('queue')">Queue (${S.queue.length})</button>
+  <button class="tab ${S.tab==='script'?'active':''}" onclick="go('script')">Script Engine</button>
+  <button class="tab ${S.tab==='tools'?'active':''}" onclick="go('tools')">Tools</button>
+</div>
+<div id="tc"></div>`;
+  renderTab();
+}
+
+function go(t) { S.tab = t; renderTab(); }
+function renderTab() {
+  const el = document.getElementById('tc');
+  if (!el) return;
+  if (S.tab==='channels') rCh(el);
+  else if (S.tab==='pipeline') rPipe(el);
+  else if (S.tab==='queue') rQ(el);
+  else if (S.tab==='script') rScript(el);
+  else rTools(el);
+}
+
+// ─── Channels ─────────────────────────────────────────────────────────────────
+function sb(s){ if(s==='live')return'<span class="badge bl">Live</span>';if(s==='build')return'<span class="badge bb">Repositioning</span>';return'<span class="badge bp">Paused</span>';}
+function rCh(el) {
+  const cards = S.channels.map((ch,i) => `
+<div class="ch-card ${ch.status==='live'?'ch-live':''}">
+  <div class="ch-head">
+    <div style="flex:1;margin-right:10px">
+      ${S.editName===ch.id
+        ? `<input class="ch-name-inp" id="cni-${ch.id}" value="${ch.name}" onblur="saveCN('${ch.id}')" onkeydown="if(event.key==='Enter')saveCN('${ch.id}')"/>`
+        : `<div class="ch-name" onclick="editCN('${ch.id}')">${ch.name}</div>`}
+      <div class="ch-niche">${ch.niche}</div>
+    </div>
+    <div onclick="cycleS(${i})">${sb(ch.status)}</div>
+  </div>
+  <div class="ch-stats">
+    <div class="ch-stat"><div class="v">${ch.rpm}</div><div class="l">RPM Target</div></div>
+    <div class="ch-stat"><div class="v">${ch.audience}</div><div class="l">Audience</div></div>
+    <div class="ch-stat"><div class="v">${ch.tier}</div><div class="l">CPM Tier</div></div>
+  </div>
+  <div class="rpm-bar"><div class="rpm-fill" style="width:${ch.rpmPct}%;${ch.status!=='live'?'background:#333':''}"></div></div>
+  ${S.editNote===ch.id
+    ? `<input class="ch-note-inp" id="cn-${ch.id}" value="${ch.note||''}" onblur="saveCNt('${ch.id}')" onkeydown="if(event.key==='Enter')saveCNt('${ch.id}')"/>`
+    : `<div class="ch-note" onclick="editCNt('${ch.id}')">📝 ${ch.note||'Add note...'}</div>`}
+</div>`).join('');
+  el.innerHTML = `<div class="ch-grid">${cards}</div>`;
+  if(S.editName){const i=document.getElementById('cni-'+S.editName);if(i)i.focus();}
+  if(S.editNote){const i=document.getElementById('cn-'+S.editNote);if(i)i.focus();}
+}
+function cycleS(i){const o=['live','build','pause'];S.channels[i].status=o[(o.indexOf(S.channels[i].status)+1)%3];save();renderTab();}
+function editCN(id){S.editName=id;S.editNote=null;renderTab();}
+function saveCN(id){const i=document.getElementById('cni-'+id);if(i){const c=S.channels.find(x=>x.id===id);if(c)c.name=i.value.trim()||c.name;}S.editName=null;save();renderTab();}
+function editCNt(id){S.editNote=id;S.editName=null;renderTab();}
+function saveCNt(id){const i=document.getElementById('cn-'+id);if(i){const c=S.channels.find(x=>x.id===id);if(c)c.note=i.value.trim();}S.editNote=null;save();renderTab();}
+
+// ─── Pipeline ─────────────────────────────────────────────────────────────────
+function cs(i,ch){const c=S.pipeline[ch]||0;if(i<c)return'sd';if(i===c)return'sc';return'sp';}
+function dc(i,ch){const c=S.pipeline[ch]||0;if(i<c)return'd';if(i===c)return'c';return'';}
+function dl(i,ch){const c=S.pipeline[ch]||0;if(i<c)return'✓';if(i===c)return'→';return'';}
+function rPipe(el) {
+  const btns = S.channels.map(ch=>`<button class="pipe-btn ${S.pipeCh===ch.id?'sel':''}" onclick="setPC('${ch.id}')">${ch.name}</button>`).join('');
+  const cur = S.pipeline[S.pipeCh]||0;
+  const stages = SN.map((n,i)=>`
+<div class="stage ${cs(i,S.pipeCh)}" onclick="adv('${S.pipeCh}',${i})">
+  <div class="sdot ${dc(i,S.pipeCh)}">${dl(i,S.pipeCh)}</div>
+  <div class="s-inf"><div class="s-name">${n}</div><div class="s-det">${SD[i]}</div></div>
+  <span class="s-tool">${ST[i]||''}</span>
+</div>`).join('');
+  const pct = Math.round((cur/SN.length)*100);
+  el.innerHTML=`<div class="pipe-sel">${btns}</div><div class="stages">${stages}</div>
+<div style="font-size:10px;color:var(--text3);text-align:center;margin-top:8px">Click a stage to mark it current · saves automatically</div>
+<div class="t-row">
+  <div class="t-card"><div class="v">${pct}%</div><div class="l">Progress</div></div>
+  <div class="t-card"><div class="v">~90</div><div class="l">Mins/Video</div></div>
+  <div class="t-card"><div class="v">3.5</div><div class="l">Hrs/Week</div></div>
+  <div class="t-card"><div class="v">${SN.length-cur}</div><div class="l">Stages Left</div></div>
+</div>`;
+}
+function setPC(id){S.pipeCh=id;renderTab();}
+function adv(ch,idx){S.pipeline[ch]=idx;save();renderTab();}
+
+// ─── Queue ────────────────────────────────────────────────────────────────────
+function rQ(el) {
+  const ftabs=`<div class="q-filters">
+    <button class="qf ${S.qFilter==='all'?'sel':''}" onclick="setQF('all')">All (${S.queue.length})</button>
+    ${S.channels.map(ch=>{const n=S.queue.filter(q=>q.ch===ch.id).length;return`<button class="qf ${S.qFilter===ch.id?'sel':''}" onclick="setQF('${ch.id}')">${ch.name} (${n})</button>`;}).join('')}
+  </div>`;
+  const sc=S.queue.filter(q=>q.status==='script').length;
+  const rc=S.queue.filter(q=>q.status==='research').length;
+  const ic=S.queue.filter(q=>q.status==='idea').length;
+  const stats=`<div class="q-stats">
+    <span class="q-stat-pill" style="background:var(--green-bg);color:var(--green);border:0.5px solid var(--green)">Script ready: ${sc}</span>
+    <span class="q-stat-pill" style="background:var(--blue-bg);color:#5BA3F5;border:0.5px solid var(--blue)">Researched: ${rc}</span>
+    <span class="q-stat-pill" style="background:var(--bg4);color:var(--text2);border:0.5px solid var(--border2)">Ideas: ${ic}</span>
+  </div>`;
+  let filtered = S.qFilter==='all'?S.queue:S.queue.filter(q=>q.ch===S.qFilter);
+  if(S.qSearch.trim()){const s=S.qSearch.toLowerCase();filtered=filtered.filter(q=>q.title.toLowerCase().includes(s));}
+  const stM={script:'st-s',research:'st-r',idea:'st-i'};
+  const stL={script:'Script ready',research:'Researched',idea:'Idea'};
+  const items=filtered.map((q,i)=>`
+<div class="q-item">
+  <div class="q-pri ${q.priority}" onclick="cycP('${q.id}')" title="Cycle priority"></div>
+  <div class="q-day">${q.day?'D'+q.day:String(i+1).padStart(2,'0')}</div>
+  <div class="q-body">
+    <div class="q-title" onclick="goScript('${q.id}')" title="Open in Script Engine">${q.title}</div>
+    <div class="q-meta">
+      <span class="q-ch-l">${S.channels.find(c=>c.id===q.ch)?.name||q.ch}</span>
+      <span class="q-src">${q.source}</span>
+      <span class="q-st ${stM[q.status]||'st-i'}">${stL[q.status]||q.status}</span>
+    </div>
+  </div>
+  <button class="q-del" onclick="delQ('${q.id}')">✕</button>
+</div>`).join('');
+  const addF=S.addForm?`
+<div class="add-form">
+  <input class="add-inp" id="nt" placeholder="Video title idea..." style="width:100%" onkeydown="if(event.key==='Enter')addQ()"/>
+  <div class="add-sels">
+    <select class="add-sel" id="nc">${S.channels.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
+    <select class="add-sel" id="ns"><option>AI Ask Studio</option><option>NotebookLM</option><option>Manual</option><option>Research</option></select>
+    <select class="add-sel" id="nst"><option value="idea">Idea</option><option value="research">Researched</option><option value="script">Script ready</option></select>
+    <select class="add-sel" id="np"><option value="high">High</option><option value="mid">Mid</option><option value="low">Low</option></select>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn-primary" onclick="addQ()">Add to Queue</button>
+    <button class="btn-sec" onclick="S.addForm=false;renderTab()">Cancel</button>
+  </div>
+</div>`:`
+<button class="show-add" onclick="S.addForm=true;renderTab()">+ Add idea manually</button>`;
+  el.innerHTML=`${ftabs}${stats}<input class="q-search" placeholder="🔍 Search titles..." value="${S.qSearch}" oninput="S.qSearch=this.value;renderTab()"/><div class="q-list">${filtered.length?items:'<div class="empty">No items found</div>'}</div>${addF}`;
+  if(S.addForm)setTimeout(()=>{const t=document.getElementById('nt');if(t)t.focus();},50);
+}
+function setQF(f){S.qFilter=f;renderTab();}
+function cycP(id){const o=['high','mid','low'];const q=S.queue.find(x=>x.id===id);if(q){q.priority=o[(o.indexOf(q.priority)+1)%3];save();renderTab();}}
+function delQ(id){if(!confirm('Remove this video from queue?'))return;S.queue=S.queue.filter(q=>q.id!==id);save();renderTab();}
+function addQ(){const t=document.getElementById('nt');if(!t||!t.value.trim())return;S.queue.push({id:'q'+Date.now(),day:null,title:t.value.trim(),ch:document.getElementById('nc').value,source:document.getElementById('ns').value,status:document.getElementById('nst').value,priority:document.getElementById('np').value});S.addForm=false;save();renderTab();}
+function goScript(id){const q=S.queue.find(x=>x.id===id);if(q){S.scriptTopic=q.title;S.tab='script';renderTab();}}
+
+// ─── Script Engine ────────────────────────────────────────────────────────────
+function rScript(el) {
+  el.innerHTML=`
+<div class="script-layout">
+  <div>
+    <div class="sec-lbl">Script Engine — Retention Framework</div>
+    <a class="repo-badge" href="https://github.com/AgriciDaniel/claude-youtube" target="_blank">
+      <span class="repo-icon">⭐</span>
+      <div class="repo-info">
+        <div class="name">AgriciDaniel/claude-youtube — 14 sub-skills</div>
+        <div class="desc">Retention scripting · hook frameworks · 9 reference guides · algorithm benchmarks</div>
+      </div>
+    </a>
+
+    <div class="sec-lbl">Video details</div>
+    <div class="script-form">
+      <div>
+        <div class="script-label">Topic / Title</div>
+        <input class="script-inp" id="s-topic" value="${S.scriptTopic.replace(/"/g,'&quot;')}" placeholder="e.g. The Gardner Museum Heist — $500M unsolved art theft" oninput="S.scriptTopic=this.value"/>
+      </div>
+      <div>
+        <div class="script-label">Key points to cover</div>
+        <textarea class="script-ta" id="s-pts" placeholder="- The midnight call that got them inside&#10;- The 81 minutes timeline&#10;- The $10M reward still active&#10;- Finance angle: no insurance on the art&#10;- Where the art might be now" oninput="S.scriptPoints=this.value">${S.scriptPoints}</textarea>
+      </div>
+      <button class="btn-primary" onclick="copyScriptPrompt()" style="width:100%">📋 Copy Script Prompt → Paste into Claude</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="sec-lbl">AB Test title variants</div>
+    <div style="font-size:10px;color:var(--text2);margin-bottom:10px">3 psychologically distinct triggers. YouTube picks the winner — you learn your audience's dominant response.</div>
+    <div class="ab-grid">
+      <div class="ab-card">
+        <span class="ab-type ab-curiosity">Curiosity</span>
+        <input class="ab-inp" id="ab0" value="${S.abVariants[0].replace(/"/g,'&quot;')}" placeholder="The Heist Nobody Can Explain..." oninput="S.abVariants[0]=this.value"/>
+        <div class="ab-hint">Triggers: unknown, secret, nobody knows, still unsolved</div>
+      </div>
+      <div class="ab-card">
+        <span class="ab-type ab-fear">Fear / Loss</span>
+        <input class="ab-inp" id="ab1" value="${S.abVariants[1].replace(/"/g,'&quot;')}" placeholder="Gone Before Anyone Noticed" oninput="S.abVariants[1]=this.value"/>
+        <div class="ab-hint">Triggers: gone, lost, destroyed, stolen, too late</div>
+      </div>
+      <div class="ab-card">
+        <span class="ab-type ab-result">Result / Number</span>
+        <input class="ab-inp" id="ab2" value="${S.abVariants[2].replace(/"/g,'&quot;')}" placeholder="2 Men Stole $500M in 81 Minutes" oninput="S.abVariants[2]=this.value"/>
+        <div class="ab-hint">Triggers: specific $, time, count, person, outcome</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="sec-lbl">Pre-upload checklist</div>
+    <div class="checklist" id="checklist">
+      ${S.checks.map((c,i)=>`
+      <div class="check-item ${c.done?'checked':''}" onclick="toggleCheck(${i})">
+        <div class="check-box">${c.done?'✓':''}</div>
+        <div class="check-text">${c.text}</div>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn-sec" onclick="resetChecks()" style="flex:1">↺ Reset for next video</button>
+      <button class="btn-primary" onclick="saveAB()">Save AB variants</button>
+    </div>
+  </div>
+
+  <div class="ret-sidebar">
+    <div class="sec-lbl" style="margin-top:0">Retention benchmarks</div>
+    <div class="ret-metric good"><div class="v">70%+</div><div class="l">Retention at 30s = solid hook</div></div>
+    <div class="ret-metric good"><div class="v">80%+</div><div class="l">Retention at 30s = exceptional</div></div>
+    <div class="ret-metric warn"><div class="v">&lt;50%</div><div class="l">Retention at 10s = hook is failing</div></div>
+    <div class="ret-metric good"><div class="v">70%+</div><div class="l">AVD = viral zone, priority push</div></div>
+    <div class="ret-metric warn"><div class="v">50–60%</div><div class="l">AVD = solid, keep optimizing</div></div>
+    <div class="ret-metric bad"><div class="v">16%</div><div class="l">Only 16% reach final 10% — never put only CTA at end</div></div>
+    <div class="ret-metric good"><div class="v">8 min</div><div class="l">Unlocks mid-roll ads (~50% more revenue)</div></div>
+    <div class="ret-rule"><strong>First 5s interrupt</strong> = 23% higher retention</div>
+    <div class="ret-rule"><strong>Open loops</strong> = 68% higher completion rate</div>
+    <div class="ret-rule"><strong>Every 30s interrupt</strong> = 43% higher completion</div>
+    <div class="ret-rule"><strong>AI narration</strong> = 70% lower retention vs human</div>
+    <div class="ret-rule"><strong>15%+ above</strong> channel avg = 2.3x algorithm push</div>
+    <div class="ret-rule"><strong>"Join the family"</strong> vs "subscribe" = 150% growth boost</div>
+    <div class="ret-rule"><strong>Never pad</strong> to hit 8 min — retention loss &gt; mid-roll gain</div>
+    <div class="ret-rule"><strong>2026:</strong> YouTube reads captions — script must match title exactly</div>
+    <div class="ret-rule"><strong>2026:</strong> Every upload shown to strangers first — subs don't matter</div>
+  </div>
+</div>`;
+}
+
+function copyScriptPrompt() {
+  const topic = document.getElementById('s-topic')?.value || S.scriptTopic;
+  const pts = document.getElementById('s-pts')?.value || S.scriptPoints;
+  if (!topic.trim()) { alert('Add a video topic first'); return; }
+  const prompt = `Using the AgriciDaniel/claude-youtube retention-scripting framework, write a full retention-engineered script for Grimm Archives.
+
+Topic: ${topic}
+Key points:
+${pts || '(use your knowledge of this topic)'}
+
+Channel: Grimm Archives — US audience, history/finance mystery, faceless (AI visuals + AI voiceover)
+Target length: 10–12 minutes
+Tone: Cinematic, mysterious, gut-punch endings
+
+Apply the full framework:
+- 3-part Hook: Grab (0–5s), Promise (5–15s), Stakes (15–30s) — target 70%+ retention at 30s
+- Never open with "Hey guys welcome back"
+- Pattern interrupt every 60–90s with type tags: [CAMERA CHANGE] [B-ROLL CUE] [GRAPHIC] [SOUND EFFECT] [UNEXPECTED STAT]
+- Soft CTA at ~1 min (60% of viewers still watching)
+- Open loop planted mid-video (suspension bridge = 68% higher completion)
+- Retention re-hook at ~60% mark (second hook moment)
+- Hard CTA in outro — never "thanks for watching" — maintain energy to last second
+- Include Pattern Interrupt Log table and Retention Risk Map
+- Include [VISUAL] and [SFX] cue markers for Whisk/Hunyuan production
+- Script must match title/description exactly (YouTube AI reads captions)`;
+  navigator.clipboard.writeText(prompt).then(() => {
+    alert('✓ Script prompt copied! Paste it into Claude.');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = prompt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('✓ Script prompt copied! Paste it into Claude.');
+  });
+}
+
+function saveAB() {
+  S.abVariants[0] = document.getElementById('ab0')?.value || S.abVariants[0];
+  S.abVariants[1] = document.getElementById('ab1')?.value || S.abVariants[1];
+  S.abVariants[2] = document.getElementById('ab2')?.value || S.abVariants[2];
+  save();
+  alert('✓ AB variants saved');
+}
+
+function toggleCheck(i) {
+  S.checks[i].done = !S.checks[i].done;
+  save();
+  document.getElementById('checklist').innerHTML = S.checks.map((c,j)=>`
+  <div class="check-item ${c.done?'checked':''}" onclick="toggleCheck(${j})">
+    <div class="check-box">${c.done?'✓':''}</div>
+    <div class="check-text">${c.text}</div>
+  </div>`).join('');
+}
+
+function resetChecks() {
+  if (!confirm('Reset all checklist items for a new video?')) return;
+  S.checks = S.checks.map(c => ({...c, done: false}));
+  save();
+  renderTab();
+}
+
+// ─── Tools ────────────────────────────────────────────────────────────────────
+function rTools(el) {
+  const tools = [
+    {n:'Google Whisk',u:'Image generation',i:'🎨',bg:'#0D1B26',url:'https://labs.google/fx/tools/whisk'},
+    {n:'Hunyuan Video',u:'Cinematic AI clips',i:'🎬',bg:'#1F1708',url:'https://hunyuan.tencent.com'},
+    {n:'NotebookLM',u:'Research & scripts',i:'📓',bg:'#0F1A06',url:'https://notebooklm.google.com'},
+    {n:'AI Ask Studio',u:'Validated video ideas',i:'💡',bg:'#1F0909',url:'https://www.youtube.com/@AIAskStudio'},
+    {n:'ElevenLabs',u:'AI voiceover',i:'🎙',bg:'#12102A',url:'https://elevenlabs.io'},
+    {n:'CapCut',u:'Edit · captions · silence cut',i:'✂️',bg:'#061A12',url:'https://www.capcut.com'},
+    {n:'Canva',u:'Thumbnails (3 AB variants)',i:'🖼',bg:'#1A0C06',url:'https://www.canva.com'},
+    {n:'YouTube Studio',u:'Upload · AB test · analytics',i:'📊',bg:'#1A1A1A',url:'https://studio.youtube.com'},
+    {n:'claude-youtube repo',u:'Retention script framework',i:'⭐',bg:'#17102A',url:'https://github.com/AgriciDaniel/claude-youtube'},
+    {n:'vidIQ',u:'VPH · outlier tracking',i:'📈',bg:'#0D1B26',url:'https://vidiq.com'}
+  ];
+  const sched = [
+    {d:'Monday',t:'Research — AI Ask Studio + NotebookLM sources',h:'30 min'},
+    {d:'Tuesday',t:'Retention script + 3 AB title variants',h:'45 min'},
+    {d:'Wednesday',t:'Whisk images + Hunyuan clips per cue markers',h:'45 min'},
+    {d:'Thursday',t:'Voiceover + content-to-title alignment check',h:'25 min'},
+    {d:'Saturday',t:'CapCut assembly + 3 thumbnails + upload',h:'90 min'}
+  ];
+  el.innerHTML=`
+<div class="sec-lbl" style="margin-top:0">Production stack</div>
+<div class="tools-grid">${tools.map(t=>`
+  <a class="tool-card" href="${t.url}" target="_blank">
+    <div class="tool-dot" style="background:${t.bg}">${t.i}</div>
+    <div><div class="tool-nm">${t.n}</div><div class="tool-us">${t.u}</div></div>
+  </a>`).join('')}
+</div>
+<div class="sec-lbl">Weekly schedule</div>
+<div class="sched-box">
+  ${sched.map(r=>`<div class="sched-r"><div class="sched-d">${r.d}</div><div class="sched-t">${r.t}</div><div class="sched-h">${r.h}</div></div>`).join('')}
+  <div class="sched-tot"><span>Total weekly commitment</span><strong>~3.75 hrs / week</strong></div>
+</div>`;
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+load();
+</script>
+</body>
+</html>
