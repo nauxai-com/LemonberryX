@@ -9,6 +9,8 @@ const TABS = [
   { num: '04', label: 'Script Engine',     path: '/script' },
   { num: '05', label: 'Tools',             path: '/tools' },
   { num: '06', label: 'Compliance Shield', path: '/compliance' },
+  { num: '07', label: 'Calendar',          path: '/calendar' },
+  { num: '08', label: 'Thumbmaker',        path: '/thumbmaker' },
 ];
 
 export default function TabBar() {

@@ -7,8 +7,10 @@ const nav = [
   { href: '/queue',      icon: '📋', label: 'Queue',         badge: 30 },
   { href: '/pipeline',   icon: '⚙️',  label: 'Pipeline' },
   { href: '/script',     icon: '✍️',  label: 'Script Engine' },
-  { href: '/compliance', icon: '🛡️',  label: 'Compliance' },
-  { href: '/tools',      icon: '🔧', label: 'Tools' },
+  { href: '/compliance',  icon: '🛡️',  label: 'Compliance' },
+  { href: '/tools',       icon: '🔧',  label: 'Tools' },
+  { href: '/calendar',    icon: '📅',  label: 'Calendar' },
+  { href: '/thumbmaker',  icon: '🖼️',  label: 'Thumbmaker' },
 ];
 
 export default function Sidebar() {
